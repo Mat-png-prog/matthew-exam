@@ -28,3 +28,9 @@ export interface ProfileSectionProps {
 export interface NavigationLinksProps {
   isCollapsed: boolean;
 }
+
+export interface BackgroundUploadFormProps {
+  backgroundUrl: string | null;
+  onSuccess: (newBackgroundUrl: string) => void;
+  onClose: () => void;
+}

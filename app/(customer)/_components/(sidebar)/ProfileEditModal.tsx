@@ -3,16 +3,22 @@
 import { useState, useEffect, ReactNode } from "react";
 import { X } from "lucide-react";
 
-interface ProfileEditModalProps {
+export type EditMode = "avatar" | "background";
+
+ export interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  mode?: EditMode;
+  onModeChange?: (mode: EditMode) => void;
 }
 
 export default function ProfileEditModal({
   isOpen,
   onClose,
   children,
+  mode = "avatar",
+  onModeChange,
 }: ProfileEditModalProps) {
   // Close modal when Escape key is pressed
   useEffect(() => {
@@ -57,6 +63,32 @@ export default function ProfileEditModal({
         >
           <X size={20} />
         </button>
+
+        {/* Tab navigation for avatar/background */}
+        {onModeChange && (
+          <div className="flex border-b">
+            <button
+              onClick={() => onModeChange("avatar")}
+              className={`flex-1 py-3 text-center font-medium transition ${
+                mode === "avatar"
+                  ? "text-teal-500 border-b-2 border-teal-500"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Profile Picture
+            </button>
+            <button
+              onClick={() => onModeChange("background")}
+              className={`flex-1 py-3 text-center font-medium transition ${
+                mode === "background"
+                  ? "text-teal-500 border-b-2 border-teal-500"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Background Image
+            </button>
+          </div>
+        )}
 
         {/* Modal content */}
         <div className="p-6">{children}</div>
