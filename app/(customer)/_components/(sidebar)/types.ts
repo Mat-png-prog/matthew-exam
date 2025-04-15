@@ -1,3 +1,18 @@
+export type EditMode = "view" | "edit";
+
+// types.ts
+export enum UserRole {
+  CUSTOMER = "customer",
+  ADMIN = "admin",
+  SUPPORT = "support"
+}
+
+export enum CustomerTier {
+  BRONZE="bronze",
+  SILVER="silver",
+  GOLD="gold"
+}
+
 export interface User {
   id: string;
   username?: string;
@@ -16,21 +31,7 @@ export interface User {
   role?: string;
 }
 
-export interface CustomerSidebarProps {
-  user: User;
-}
-
 export interface ProfileSectionProps {
   user: User;
   isCollapsed: boolean;
-}
-
-export interface NavigationLinksProps {
-  isCollapsed: boolean;
-}
-
-export interface BackgroundUploadFormProps {
-  backgroundUrl: string | null;
-  onSuccess: (newBackgroundUrl: string) => void;
-  onClose: () => void;
 }

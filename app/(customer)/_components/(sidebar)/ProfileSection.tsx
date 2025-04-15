@@ -1,158 +1,178 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { User as UserIcon, Image as ImageIcon } from "lucide-react";
+import { User as UserIcon, Image as ImageIcon, Pencil } from "lucide-react";
 import { ProfileSectionProps } from "./types";
-import ProfileEditModal, { EditMode } from "./ProfileEditModal";
-import AvatarUploadForm from "./AvatarUploadForm";
-import BackgroundUploadForm from "./BackgroundUploadForm";
+import ProfileImageEditModal from "./ProfileImageEditModal";
+import ProfileEditModal from "./ProfileEditModal";
+import CustomerEditForm from "./CustomerEditForm";
+import CustomerInfoDisplay from "./CustomerInfoDisplay";
 
 export default function ProfileSection({
   user,
   isCollapsed,
 }: ProfileSectionProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState<EditMode>("avatar");
-  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(
-    user.avatarUrl || null,
-  );
-  const [currentBackgroundUrl, setCurrentBackgroundUrl] = useState<string | null>(
-    user.backgroundUrl || null,
-  );
+  const [modalOpen, setModalOpen] = useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState<"view" | "edit" | null>(null);
+  const [currentUser, setCurrentUser] = useState(user);
 
-  const openModal = (mode: EditMode = "avatar") => {
-    setEditMode(mode);
-    setIsModalOpen(true);
-  };
-  
-  const closeModal = () => setIsModalOpen(false);
+  function handleImagesUpdate({ avatarUrl, backgroundUrl }: { avatarUrl: string | null, backgroundUrl: string | null }) {
+    setCurrentUser((prev) => ({
+      ...prev,
+      avatarUrl,
+      backgroundUrl,
+    }));
+    setModalOpen(false);
+  }
 
-  const handleAvatarUpdateSuccess = (newAvatarUrl: string) => {
-    setCurrentAvatarUrl(newAvatarUrl);
-  };
-
-  const handleBackgroundUpdateSuccess = (newBackgroundUrl: string) => {
-    setCurrentBackgroundUrl(newBackgroundUrl);
-  };
+  function handleInfoUpdate(updated: typeof user) {
+    setCurrentUser(updated);
+    setInfoModalOpen(null);
+  }
 
   return (
     <div
-      className={`${isCollapsed ? "py-6 px-2" : "p-6"} border-b border-slate-600 flex flex-col items-center relative`}
+      className={`relative flex flex-col items-center w-full overflow-y-auto
+        ${isCollapsed ? "py-6 px-2" : "p-6"}`}
+      style={{
+        borderRadius: "1.5rem",
+        boxShadow: "0 6px 32px 0 rgba(0,0,0,0.10)",
+        background: "#fff",
+        minHeight: isCollapsed ? 220 : 340,
+        marginTop: isCollapsed ? 0 : 24,
+        maxHeight: "100vh",
+      }}
     >
-      {/* Background image */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-        {currentBackgroundUrl ? (
+      {/* Background */}
+      <div
+        className="absolute top-0 left-0 w-full h-32"
+        style={{
+          background: currentUser.backgroundUrl
+            ? undefined
+            : "linear-gradient(135deg, #bcd7ec 0%, #f6fafd 100%)",
+          zIndex: 1,
+        }}
+      >
+        {currentUser.backgroundUrl && (
           <Image
-            src={currentBackgroundUrl}
+            src={currentUser.backgroundUrl}
             alt="Profile Background"
             fill
-            className="object-cover opacity-25"
+            className="object-cover"
+            style={{
+              borderTopLeftRadius: "1.5rem",
+              borderTopRightRadius: "1.5rem",
+              opacity: 0.6,
+            }}
           />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-b from-slate-700 to-slate-600 opacity-25" />
         )}
-        {/* Background edit button (only shown when not collapsed) */}
-        {!isCollapsed && (
-          <div
-            onClick={() => openModal("background")}
-            className="absolute right-4 top-4 bg-teal-500 rounded-full w-8 h-8 flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-teal-400 transition-colors z-10"
-          >
-            <ImageIcon size={18} className="text-white" />
-          </div>
-        )}
+        {/* Edit background icon */}
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          className="absolute right-4 top-4 bg-white bg-opacity-80 rounded-full p-2 shadow transition hover:bg-teal-100 z-10"
+          aria-label="Edit background image"
+        >
+          <ImageIcon size={20} className="text-teal-600" />
+        </button>
       </div>
-
-      {/* Content with z-index to appear above background */}
-      <div className="z-10 flex flex-col items-center">
-        <div className="relative">
-          {/* Avatar with white border */}
+      {/* Avatar */}
+      <div
+        className="z-10 relative flex flex-col items-center"
+        style={{
+          marginTop: 60, // Align with background overlap
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: isCollapsed ? 56 : 110,
+            height: isCollapsed ? 56 : 110,
+            marginTop: isCollapsed ? -28 : -60,
+            marginBottom: 8,
+          }}
+        >
           <div
-            className={`${isCollapsed ? "h-12 w-12" : "h-24 w-24"} rounded-full overflow-hidden bg-slate-600 mb-3 transition-all duration-300 border-2 border-white relative mt-5`}
+            className="rounded-full bg-slate-200 border-4 border-white shadow"
+            style={{
+              width: "100%",
+              height: "100%",
+              overflow: "hidden",
+              position: "relative",
+            }}
           >
-            {currentAvatarUrl ? (
+            {currentUser.avatarUrl ? (
               <Image
-                src={currentAvatarUrl}
-                alt={user.displayName || "User"}
-                width={isCollapsed ? 48 : 96}
-                height={isCollapsed ? 48 : 96}
-                className="h-full w-full object-cover"
+                src={currentUser.avatarUrl}
+                alt={currentUser.displayName || "User"}
+                fill
+                className="object-cover"
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-slate-600">
+              <div className="w-full h-full flex items-center justify-center">
                 <UserIcon
-                  size={isCollapsed ? 24 : 48}
-                  className="text-slate-300"
+                  size={isCollapsed ? 28 : 48}
+                  className="text-slate-400"
                 />
               </div>
             )}
           </div>
-          {/* Avatar edit icon positioned at the bottom-right of the avatar */}
-          <div
-            onClick={() => openModal("avatar")}
-            className="absolute right-0 bottom-0 bg-teal-500 rounded-full w-8 h-8 flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-teal-400 transition-colors"
+          {/* Edit avatar icon */}
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="absolute right-1 bottom-1 bg-white bg-opacity-90 rounded-full shadow p-2 hover:bg-teal-100 z-10"
+            aria-label="Edit avatar"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={isCollapsed ? 14 : 18}
-              height={isCollapsed ? 14 : 18}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-            </svg>
-          </div>
+            <Pencil size={18} className="text-teal-600" />
+          </button>
         </div>
-
-        {!isCollapsed && (
-          <>
-            <h2 className="text-xl font-semibold mt-2 text-white drop-shadow-md">
-              {user.displayName || "Customer1"}
-            </h2>
-
-            <div className="flex gap-3 mt-4 w-full">
-              <button
-                onClick={() => openModal("avatar")}
-                className="w-full py-3 px-3 bg-teal-500 rounded text-center font-medium hover:bg-teal-400 transition"
-              >
-                View
-              </button>
-
-              <button
-                onClick={() => openModal("avatar")}
-                className="w-full py-3 px-3 bg-slate-600 rounded text-center font-medium hover:bg-slate-500 transition"
-              >
-                Edit
-              </button>
-            </div>
-          </>
-        )}
       </div>
+      {/* Customer display name */}
+      <div className="text-xl font-semibold text-gray-900 mb-1 mt-2 text-center">
+        {currentUser.displayName || "Customer"}
+      </div>
+      {/* View and Edit buttons */}
+      {!isCollapsed && (
+        <div className="flex gap-3 mt-4 w-full justify-center">
+          <button
+            onClick={() => setInfoModalOpen("view")}
+            className="px-5 py-2 rounded-full font-medium bg-gray-100 text-teal-700 hover:bg-teal-100 shadow"
+            style={{ minWidth: 120 }}
+          >
+            View
+          </button>
+          <button
+            onClick={() => setInfoModalOpen("edit")}
+            className="px-5 py-2 rounded-full font-medium bg-teal-500 text-white hover:bg-teal-400 shadow"
+            style={{ minWidth: 120 }}
+          >
+            Edit
+          </button>
+        </div>
+      )}
 
-      {/* Profile Edit Modal */}
-      <ProfileEditModal 
-        isOpen={isModalOpen} 
-        onClose={closeModal}
-        mode={editMode}
-        onModeChange={setEditMode}
+      {/* Modal for updating images */}
+      <ProfileImageEditModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        avatarUrl={currentUser.avatarUrl ?? null}
+        backgroundUrl={currentUser.backgroundUrl ?? null}
+        displayName={currentUser.displayName}
+        onUpdate={handleImagesUpdate}
+      />
+      {/* Modal for viewing/editing info */}
+      <ProfileEditModal
+        isOpen={!!infoModalOpen}
+        onClose={() => setInfoModalOpen(null)}
+        mode={infoModalOpen === "edit" ? "edit" : "view"}
+        onModeChange={m => setInfoModalOpen(m)}
       >
-        {editMode === "avatar" ? (
-          <AvatarUploadForm
-            avatarUrl={currentAvatarUrl}
-            onSuccess={handleAvatarUpdateSuccess}
-            onClose={closeModal}
-          />
+        {infoModalOpen === "edit" ? (
+          <CustomerEditForm user={currentUser} onUpdate={handleInfoUpdate} onCancel={() => setInfoModalOpen(null)} />
         ) : (
-          <BackgroundUploadForm
-            backgroundUrl={currentBackgroundUrl}
-            onSuccess={handleBackgroundUpdateSuccess}
-            onClose={closeModal}
-          />
+          <CustomerInfoDisplay user={currentUser} />
         )}
       </ProfileEditModal>
     </div>
