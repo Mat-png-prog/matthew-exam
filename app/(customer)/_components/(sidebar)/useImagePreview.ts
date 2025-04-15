@@ -15,7 +15,7 @@ export const imageFileSchema = z
     message: "Image must be less than 5MB",
   });
 
-export function useImagePreview(initialUrl: string | null) {
+export function useImagesPreview(initialUrl: string | null) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialUrl);
 

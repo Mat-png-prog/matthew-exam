@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { User as UserIcon, Pencil, Image as ImageIcon, X } from "lucide-react";
 import { motion } from "framer-motion";
-import { useImagePreview } from "./useImagePreview";
+import { useImagesPreview } from "./useImagePreview";
 import { uploadAvatar, uploadBackground } from "./_profile-actions/profile-upload";
 import { toast } from "sonner";
 
@@ -22,8 +22,8 @@ export default function ProfileImageEditModal({
   displayName?: string | null;
   onUpdate: (urls: { avatarUrl: string | null; backgroundUrl: string | null }) => void;
 }) {
-  const avatar = useImagePreview(avatarUrl ?? null);
-  const bg = useImagePreview(backgroundUrl ?? null);
+  const avatar = useImagesPreview(avatarUrl ?? null);
+  const bg = useImagesPreview(backgroundUrl ?? null);
 
   const [isSaving, setIsSaving] = useState(false);
   const [avatarDragActive, setAvatarDragActive] = useState(false);
