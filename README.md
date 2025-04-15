@@ -1,36 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Admin System Requirements
 
-## Getting Started
+## Question 1 []
 
-First, run the development server:
+- Create a super Admin route, when the super admin logs in, then he/she will be redirected to a "/routing-hub".
+- **Hint:** On the layout file where the super-admin wishes to navigate allow the doorway to be opened for the role of super-admin as well.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Question 2 []
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- On the `/customer` for the sidebar profile image, when you click the pencil the modal that opens, I want you to add a background image that stands behind the image as in the image I've sent on the group. The customer must be able to upload a background image.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Question 3 []
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- For the `/customer` under the support in the sidebar create a messaging system, where a customer can send a message to admin with a title, their name, email and the actual support message.
+- On the admin panel create a route for the admin sidebar that shows all the messages that came from a customer.
