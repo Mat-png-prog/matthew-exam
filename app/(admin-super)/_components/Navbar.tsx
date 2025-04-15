@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import UserButton from "./UserButton";
 
 const Navbar = () => {
@@ -10,7 +9,7 @@ const Navbar = () => {
       <div className="fixed top-0 left-0 right-0 z-50">
         <nav className="bg-black text-white shadow-lg">
           <div className="flex items-center justify-between text-xs mx-auto w-full py-6 px-8">
-            <Link href="/customer" className="w-[170px] h-[10px] mb-5">
+            <Link href="/super-admin" className="w-[170px] h-[10px] mb-5">
               {/* <Image
                 src=""
                 alt=""

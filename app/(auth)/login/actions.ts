@@ -14,7 +14,7 @@ const roleRoutes: Record<UserRole, string> = {
   [UserRole.PROCUSTOMER]: "/pro",
   [UserRole.EDITOR]: "/",
   [UserRole.ADMIN]: "/admin",
-  [UserRole.SUPERADMIN]: "/super-admin",
+  [UserRole.SUPERADMIN]: "/super-admin/routing-hub",
 } as const;
 
 export async function login(
