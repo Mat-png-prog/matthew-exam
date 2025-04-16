@@ -1,19 +1,29 @@
+//app/(customer)/_components/CustomerSidebar.tsx
 "use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
-import { usePathname } from "next/navigation"; // Import usePathname hook
+import { usePathname } from "next/navigation";
 import ProfileSection from "./(sidebar)/ProfileSection";
 import StatsSection from "./(sidebar)/StatsSection";
 import NavigationLinks from "./(sidebar)/NavigationLinks";
 import { SessionUser } from "@/app/SessionProvider";
+import { User } from "./(sidebar)/types";
 
-// Define props interface directly in the file
 interface CustomerSidebarProps {
   user: SessionUser;
   orderCount: number;
   wishlistCount: number;
+}
+
+// Map SessionUser to User to ensure type compatibility
+function mapSessionUserToUser(user: SessionUser): User {
+  return {
+    ...user,
+    // Ensure tier is the expected type (optional, if SessionUser tier matches User tier values)
+    tier: user.tier as User["tier"],
+  };
 }
 
 export default function CustomerSidebar({
@@ -22,10 +32,9 @@ export default function CustomerSidebar({
   wishlistCount,
 }: CustomerSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const pathname = usePathname(); // Get current pathname
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Update main content margin based on sidebar state
     document
       .querySelector("main")
       ?.classList.remove(isCollapsed ? "ml-64" : "ml-16");
@@ -34,9 +43,7 @@ export default function CustomerSidebar({
       ?.classList.add(isCollapsed ? "ml-16" : "ml-64");
   }, [isCollapsed]);
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
   return (
     <div className="relative h-full">
@@ -44,18 +51,18 @@ export default function CustomerSidebar({
         className={`${isCollapsed ? "w-16" : "w-64"} bg-slate-700 text-white fixed top-0 left-0 h-full transition-all duration-300 overflow-hidden pt-16 z-10`}
       >
         {/* Profile Section */}
-        <ProfileSection user={user} isCollapsed={isCollapsed} />
+        <ProfileSection user={mapSessionUserToUser(user)} isCollapsed={isCollapsed} />
 
         {/* Stats Section */}
         {!isCollapsed && (
           <StatsSection orderCount={orderCount} wishlistCount={wishlistCount} />
         )}
 
-        {/* Navigation Links - pass current pathname */}
+        {/* Navigation Links */}
         <NavigationLinks isCollapsed={isCollapsed} currentPath={pathname} />
       </aside>
 
-      {/* Toggle Button - moved down by 80px */}
+      {/* Toggle Button */}
       <div
         className={`fixed ${isCollapsed ? "left-16" : "left-64"} top-100 transition-all duration-300 z-20`}
       >

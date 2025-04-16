@@ -8,19 +8,24 @@ import type { Session as LuciaSession } from "lucia"
 // Define the UserRole enum to match Prisma
 export type UserRole = "USER" | "CUSTOMER" | "PROCUSTOMER" | "EDITOR" | "ADMIN" | "SUPERADMIN"
 
-// Define the SessionUser type with only the safe fields we want to expose
+export type UserTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
+
 export interface SessionUser {
-  id: string
-  username: string
-  firstName: string
-  lastName: string
-  displayName: string
-  postcode: string
-  country: string
-  avatarUrl: string | null
-  backgroundUrl: string | null
-  role: UserRole
+  id: string;
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  postcode: string;
+  country: string;
+  avatarUrl: string | null;
+  backgroundUrl: string | null;
+  role: UserRole;
+  tier: UserTier;
 }
+
+// ...rest of your SessionProvider logic
 
 // Extend Lucia's Session type with our user type
 export interface SessionWithUser extends LuciaSession {

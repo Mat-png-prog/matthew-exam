@@ -51,13 +51,13 @@ export default function ProfileSection({
 
   return (
     <Card
-      className={`relative flex flex-col items-center w-full overflow-y-auto
+      className={`relative flex flex-col items-center w-full space-y-4
         ${isCollapsed ? "py-4 px-2" : "p-4"}`}
       style={{
         borderRadius: "1.5rem",
-        minHeight: isCollapsed ? 200 : 320,
+        minHeight: isCollapsed ? 200 : 250,
         marginTop: isCollapsed ? 0 : 16,
-        maxHeight: "90vh",
+        maxHeight: "40vh",
       }}
     >
       {/* Background */}
@@ -151,12 +151,12 @@ export default function ProfileSection({
         </div>
       </div>
       {/* Customer display name */}
-      <div className="text-xl font-semibold text-foreground mb-1 mt-1 text-center">
+      <div className="text-xl font-semibold text-foreground mt-1 text-center">
         {currentUser.displayName || "Customer"}
       </div>
       {/* View and Edit buttons */}
       {!isCollapsed && (
-        <div className="flex gap-3 mt-3 w-full justify-center">
+        <div className="flex gap-1 mt-3 w-full h-1 justify-center">
           <Button
             onClick={() => setInfoModalOpen("view")}
             variant="outline"

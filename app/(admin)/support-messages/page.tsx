@@ -2,7 +2,8 @@
 
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/getCurrentUser';
-import { supportMessageSchema } from './validations';
+import { supportMessageSchema } from '@/app/(customer)/customer/support/validations';
+
 
 export async function submitSupportMessage(formData: FormData) {
   const user = await getCurrentUser();

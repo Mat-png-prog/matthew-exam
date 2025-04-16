@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext } from "react";
 import { Session as LuciaSession } from "lucia";
+import { CustomerTier } from "./(customer)/_components/(sidebar)/types";
 
 export type UserRole =
   | "USER"
@@ -11,10 +12,9 @@ export type UserRole =
   | "ADMIN"
   | "SUPERADMIN";
 
-export type UserTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-
 export interface SessionUser {
   id: string;
+  email: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -24,7 +24,7 @@ export interface SessionUser {
   avatarUrl: string | null;
   backgroundUrl: string | null;
   role: UserRole;
-  tier: UserTier;  // Make sure tier is included here
+  tier?: CustomerTier;  // Make sure tier is included here
 }
 
 export interface SessionWithUser extends LuciaSession {
