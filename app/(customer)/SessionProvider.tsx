@@ -1,3 +1,4 @@
+//app/(customer)/SessionProvider.tsx
 "use client"
 
 import type React from "react"

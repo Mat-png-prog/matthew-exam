@@ -1,7 +1,10 @@
+//app/(customer)/_components/(sidebar)/ProfileEditModal.tsx
 "use client";
 import { useEffect, ReactNode } from "react";
 import { X } from "lucide-react";
 import { EditMode } from "./types";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export interface ProfileEditModalProps {
   isOpen: boolean;
@@ -29,53 +32,45 @@ export default function ProfileEditModal({
     return () => document.removeEventListener("keydown", handleEscapeKey);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      {/* Modal container with max height and scroll */}
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 z-10 max-h-[90vh] flex flex-col">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
-          aria-label="Close modal"
-        >
-          <X size={20} />
-        </button>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md max-h-[75vh] flex flex-col">
+        <DialogHeader className="flex items-center justify-between">
+          <DialogTitle className="sr-only">Profile Information</DialogTitle>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="absolute right-4 top-4"
+            aria-label="Close modal"
+          >
+            <X size={20} />
+          </Button>
+        </DialogHeader>
+        
         {/* Tab navigation */}
-        <div className="flex justify-center gap-2 mt-8 mb-2">
-          <button
+        <div className="flex justify-center gap-2 mt-4 mb-2">
+          <Button
             onClick={() => onModeChange("view")}
-            className={`px-4 py-2 rounded-full font-medium transition
-              ${mode === "view"
-                ? "bg-teal-500 text-white shadow"
-                : "bg-gray-100 text-gray-700 hover:bg-teal-100"}
-            `}
+            variant={mode === "view" ? "default" : "outline"}
+            className="rounded-full font-medium"
             style={{ minWidth: 120 }}
           >
             View
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => onModeChange("edit")}
-            className={`px-4 py-2 rounded-full font-medium transition
-              ${mode === "edit"
-                ? "bg-teal-500 text-white shadow"
-                : "bg-gray-100 text-gray-700 hover:bg-teal-100"}
-            `}
+            variant={mode === "edit" ? "default" : "outline"}
+            className="rounded-full font-medium"
             style={{ minWidth: 120 }}
           >
             Edit
-          </button>
+          </Button>
         </div>
+        
         {/* Modal content - SCROLLABLE */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-6">{children}</div>
-      </div>
-    </div>
+        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
+      </DialogContent>
+    </Dialog>
   );
 }

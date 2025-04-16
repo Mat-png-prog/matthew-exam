@@ -1,3 +1,4 @@
+//app/(customer)/_components/(sidebar)/NavigationLinks.tsx
 import Link from "next/link";
 import {
   ShoppingBag,

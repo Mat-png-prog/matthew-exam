@@ -1,29 +1,8 @@
 // CustomerInfoDisplay.tsx
 import React from "react";
 import { User, CustomerTier } from "./types";
-
-// Define which fields should be visible to different user roles
-const VISIBLE_FIELDS: Record<string, (keyof User)[]> = {
-  // Only show necessary customer information (no internal IDs or sensitive data)
-  default: [
-    "displayName", 
-    "email", 
-    "phoneNumber",
-    "tier"
-  ],
-  // More fields for detailed view
-  detailed: [
-    "displayName", 
-    "email", 
-    "phoneNumber",
-    "streetAddress",
-    "suburb",
-    "townCity",
-    "postcode",
-    "country",
-    "tier"
-  ]
-};
+import { Badge } from "@/components/ui/badge";
+import { Medal } from "lucide-react";
 
 // Human-readable labels for each field
 const LABELS: Record<keyof User, string> = {
@@ -45,28 +24,37 @@ const LABELS: Record<keyof User, string> = {
   tier: "Membership Tier"
 };
 
-// Color scheme that works for colorblind users
-// Using a blue/orange contrast that is distinguishable across most forms of color blindness
+// Updated color scheme that works for colorblind users
 const TIER_COLORS = {
   [CustomerTier.BRONZE]: {
-    background: "bg-blue-100",
-    text: "text-blue-800",
-    border: "border-blue-200"
+    background: "bg-amber-100",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    icon: "text-amber-600"
   },
   [CustomerTier.SILVER]: {
-    background: "bg-orange-100",
-    text: "text-orange-800",
-    border: "border-orange-200"
+    background: "bg-gray-100",
+    text: "text-gray-600", 
+    border: "border-gray-200",
+    icon: "text-gray-500"
   },
   [CustomerTier.GOLD]: {
-    background: "bg-purple-100",
-    text: "text-purple-800", 
-    border: "border-purple-200"
+    background: "bg-yellow-100",
+    text: "text-yellow-600", 
+    border: "border-yellow-200",
+    icon: "text-yellow-500"
+  },
+  [CustomerTier.PLATINUM]: {
+    background: "bg-blue-100",
+    text: "text-blue-700", 
+    border: "border-blue-200",
+    icon: "text-blue-600"
   },
   default: {
     background: "bg-gray-100",
     text: "text-gray-800",
-    border: "border-gray-200"
+    border: "border-gray-200",
+    icon: "text-gray-400"
   }
 };
 
@@ -79,89 +67,108 @@ export default function CustomerInfoDisplay({
   user, 
   viewMode = "default" 
 }: CustomerInfoDisplayProps) {
-  // Determine which fields to display based on the view mode
-  const visibleFields = VISIBLE_FIELDS[viewMode];
-  
   // Get tier styling or default if tier isn't specified
   const tierStyle = user.tier ? TIER_COLORS[user.tier] : TIER_COLORS.default;
+  
+  // Filter out any undefined fields from the user
+  const userEntries = Object.entries(user).filter(([_, value]) => 
+    value !== undefined && value !== null && value !== ''
+  );
 
   return (
-    <div className={`rounded-lg p-4 ${tierStyle.background} ${tierStyle.border} border`}>
-      <h3 className={`text-lg font-semibold mb-4 text-center ${tierStyle.text}`}>
-        Customer Information
-      </h3>
-      
-      <dl className="divide-y divide-gray-200">
-        {visibleFields.map((key) => 
-          user[key] ? (
-            <div className="py-2 flex justify-between" key={key}>
-              <dt className="font-medium text-gray-700">{LABELS[key]}</dt>
-              <dd className="text-gray-900">{user[key] as string}</dd>
-            </div>
-          ) : null
+    <div className={`rounded-lg p-4 ${tierStyle.border} border`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">
+          Customer Information
+        </h3>
+        {user.tier && (
+          <div className="flex items-center gap-1">
+            <Medal className={`h-4 w-4 ${tierStyle.icon}`} />
+            <Badge variant="outline" className={`${tierStyle.background} ${tierStyle.text}`}>
+              {user.tier} Tier
+            </Badge>
+          </div>
         )}
+      </div>
+      
+      <dl className="divide-y divide-gray-200 space-y-1">
+        {userEntries.map(([key, value]) => {
+          // Skip certain fields
+          if (['avatarUrl', 'backgroundUrl', 'id', 'role'].includes(key)) {
+            return null;
+          }
+
+          return (
+            <div className="py-2 flex justify-between" key={key}>
+              <dt className="font-medium text-gray-700">{LABELS[key as keyof User] || key}</dt>
+              <dd className="text-gray-900">
+                {key === 'tier' ? `${value} Tier` : value as string}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
+
+      {user.tier && (
+        <div className="mt-4 pt-3 border-t border-gray-200">
+          <TierBenefits tier={user.tier} />
+        </div>
+      )}
     </div>
   );
 }
 
-// Alternative tier-focused display component
-interface CustomerTierDisplayProps {
-  user: User;
+// Tier benefits component
+interface TierBenefitsProps {
+  tier: CustomerTier;
 }
 
-export function CustomerTierDisplay({ user }: CustomerTierDisplayProps) {
-  const tierStyle = user.tier ? TIER_COLORS[user.tier] : TIER_COLORS.default;
-  const tierName = user.tier || "Not assigned";
+function TierBenefits({ tier }: TierBenefitsProps) {
+  const tierStyle = TIER_COLORS[tier];
   
-  // Benefits based on tier
+  // Benefits based on tier - aligned with other components
   const tierBenefits = {
     [CustomerTier.BRONZE]: [
-      "Standard support",
-      "Basic features",
-      "Email notifications"
+      "Standard shopping experience",
+      "Access to regular promotions",
+      "Regular customer support"
     ],
     [CustomerTier.SILVER]: [
-      "Priority support",
-      "Advanced features",
-      "Phone and email notifications",
-      "Monthly reports"
+      "Early access to sales",
+      "5% discount on all purchases",
+      "Free standard shipping",
+      "Priority customer support"
     ],
     [CustomerTier.GOLD]: [
-      "24/7 dedicated support",
-      "All features included",
-      "Custom integrations",
-      "Dedicated account manager",
-      "Weekly reports"
+      "10% discount on all purchases",
+      "Free express shipping",
+      "Exclusive access to limited editions",
+      "VIP customer support",
+      "First access to new collections"
     ],
-    default: ["No specific benefits"]
+    [CustomerTier.PLATINUM]: [
+      "15% discount on all purchases",
+      "Dedicated personal shopper",
+      "VIP events and pre-releases",
+      "Free returns and exchanges",
+      "Complimentary gift wrapping",
+      "Exclusive platinum-only products"
+    ]
   };
   
-  const benefits = user.tier ? tierBenefits[user.tier] : tierBenefits.default;
+  const benefits = tierBenefits[tier];
 
   return (
-    <div className={`rounded-lg p-4 ${tierStyle.background} ${tierStyle.border} border`}>
-      <h3 className={`text-lg font-semibold text-center ${tierStyle.text}`}>
-        {user.displayName} - {tierName} Tier
-      </h3>
-      
-      <div className="mt-3">
-        <p className={`font-medium ${tierStyle.text}`}>Membership Benefits:</p>
-        <ul className="mt-2 space-y-1">
-          {benefits.map((benefit, index) => (
-            <li key={index} className="flex items-center">
-              <span className={`mr-2 ${tierStyle.text}`}>•</span>
-              <span>{benefit}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      
-      <div className="mt-4 pt-3 border-t border-gray-200">
-        <p className="text-sm text-gray-600">
-          Contact: {user.email} {user.phoneNumber ? `| ${user.phoneNumber}` : ''}
-        </p>
-      </div>
+    <div>
+      <p className={`font-medium ${tierStyle.text} mb-2`}>Membership Benefits:</p>
+      <ul className="space-y-1">
+        {benefits.map((benefit, index) => (
+          <li key={index} className="flex items-center">
+            <span className={`mr-2 ${tierStyle.text}`}>✓</span>
+            <span className="text-sm">{benefit}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

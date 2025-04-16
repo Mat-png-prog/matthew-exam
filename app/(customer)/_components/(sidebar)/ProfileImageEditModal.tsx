@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import { useImagesPreview } from "./useImagePreview";
 import { uploadAvatar, uploadBackground } from "./_profile-actions/profile-upload";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function ProfileImageEditModal({
   isOpen,
@@ -90,19 +93,19 @@ export default function ProfileImageEditModal({
       />
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 z-10 max-h-[95vh] flex flex-col">
         {/* Close button */}
-        <button
+        <Button
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
           aria-label="Close modal"
         >
           <X size={20} />
-        </button>
+        </Button>
         <div className="overflow-y-auto p-6 pt-10">
           {/* Sidebar-style info at top */}
           <div className="relative flex flex-col items-center mb-8">
             {/* Background image */}
             <div
-              className="absolute top-0 left-0 w-full h-32"
+              className="absolute top-0 left-0 w-full h-[40vh]"
               style={{
                 background: bg.previewUrl
                   ? undefined
@@ -188,7 +191,7 @@ export default function ProfileImageEditModal({
               aria-label="Background image upload area"
             >
               <span className="absolute left-4 top-4 text-xs text-gray-500 font-semibold">Background Image</span>
-              <label className="w-full flex flex-col items-center cursor-pointer">
+              <Label className="w-full flex flex-col items-center cursor-pointer">
                 <ImageIcon size={32} className="text-teal-600 mb-2" />
                 <span className="text-base font-medium mb-1">
                   {bg.selectedFile ? bg.selectedFile.name : "Drag & drop or click to upload"}
@@ -198,7 +201,7 @@ export default function ProfileImageEditModal({
                     ? "Image ready to upload"
                     : "Recommended: landscape image, JPG/PNG/WebP/SVG/BMP/TIFF, max 5MB"}
                 </span>
-                <input
+                <Input
                   type="file"
                   onChange={bg.handleInputChange}
                   accept="image/*"
@@ -206,7 +209,7 @@ export default function ProfileImageEditModal({
                   disabled={isSaving}
                   aria-label="Upload background image"
                 />
-              </label>
+              </Label>
               {bg.previewUrl && (
                 <Image
                   src={bg.previewUrl}
@@ -236,7 +239,7 @@ export default function ProfileImageEditModal({
               aria-label="Avatar image upload area"
             >
               <span className="absolute left-4 top-4 text-xs text-gray-500 font-semibold">Avatar Image</span>
-              <label className="w-full flex flex-col items-center cursor-pointer">
+              <Label className="w-full flex flex-col items-center cursor-pointer">
                 <Pencil size={32} className="text-teal-600 mb-2" />
                 <span className="text-base font-medium mb-1">
                   {avatar.selectedFile ? avatar.selectedFile.name : "Drag & drop or click to upload"}
@@ -246,7 +249,7 @@ export default function ProfileImageEditModal({
                     ? "Image ready to upload"
                     : "Recommended: square image, JPG/PNG/WebP/SVG/BMP/TIFF, max 5MB"}
                 </span>
-                <input
+                <Input
                   type="file"
                   onChange={avatar.handleInputChange}
                   accept="image/*"
@@ -254,7 +257,7 @@ export default function ProfileImageEditModal({
                   disabled={isSaving}
                   aria-label="Upload avatar image"
                 />
-              </label>
+              </Label>
               {avatar.previewUrl && (
                 <Image
                   src={avatar.previewUrl}
@@ -269,21 +272,21 @@ export default function ProfileImageEditModal({
 
             {/* Submit/cancel */}
             <div className="flex gap-2 mt-4 justify-center">
-              <button
+              <Button
                 type="button"
                 onClick={onClose}
                 className="w-1/2 py-2 px-4 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300"
                 disabled={isSaving}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 className="w-1/2 py-2 px-4 rounded bg-teal-500 text-white font-medium hover:bg-teal-400"
                 disabled={isSaving || (!avatar.selectedFile && !bg.selectedFile)}
               >
                 {isSaving ? "Saving..." : "Save"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

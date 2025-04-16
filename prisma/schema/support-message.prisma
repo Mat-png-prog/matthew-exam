@@ -1,0 +1,8 @@
+model SupportMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+}
