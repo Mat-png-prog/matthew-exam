@@ -77,7 +77,7 @@ export function SupportForm({ user }: SupportFormProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 inset-y-0">
       <div className="space-y-2">
         <h2 className="text-xl font-semibold tracking-tight">Contact Support</h2>
         <p className="text-muted-foreground">

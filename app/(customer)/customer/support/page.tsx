@@ -24,8 +24,8 @@ export default async function SupportPage() {
   return (
     <>
       <Toaster richColors closeButton position="top-center" />
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+      <main className="container mx-auto px-4 my-auto">
+        <div className="max-w-2xl mx-auto my-auto">
           <div className="bg-card rounded-lg shadow-sm p-6">
             <SupportForm user={user} />
           </div>

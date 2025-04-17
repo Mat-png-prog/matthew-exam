@@ -175,7 +175,7 @@ export default function ProfileImageEditModal({
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-7">
             {/* Background drag-and-drop */}
-            <motion.div
+            <motion.div title="Click to change background"
               className={`relative border-2 rounded-xl p-5 flex flex-col items-center justify-center group transition
                 ${bgDragActive ? "border-teal-500 bg-teal-50" : "border-gray-200 bg-gray-50"}
               `}
@@ -190,7 +190,7 @@ export default function ProfileImageEditModal({
               tabIndex={0}
               aria-label="Background image upload area"
             >
-              <span className="absolute left-4 top-4 text-xs text-gray-500 font-semibold">Background Image</span>
+              <span  className="absolute left-4 top-4 text-xs text-gray-500 font-semibold z-50">Background Image</span>
               <Label className="w-full flex flex-col items-center cursor-pointer">
                 <ImageIcon size={32} className="text-teal-600 mb-2" />
                 <span className="text-base font-medium mb-1">
