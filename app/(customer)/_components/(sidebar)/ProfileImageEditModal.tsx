@@ -95,10 +95,10 @@ export default function ProfileImageEditModal({
         {/* Close button */}
         <Button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+          className="z-50 absolute right-4 top-4 text-gray-500 hover:text-gray-700"
           aria-label="Close modal"
         >
-          <X size={20} />
+          <X size={20}  />
         </Button>
         <div className="overflow-y-auto p-6 pt-10 hover:z-50">
           {/* Sidebar-style info at top */}
@@ -186,7 +186,7 @@ export default function ProfileImageEditModal({
                 setBgDragActive(false);
                 bg.handleDrop(e);
               }}
-              whileHover={{ scale: 1.02, boxShadow: "0 0 0 2px #14b8a6" }}
+              whileHover={{ scale: 1.02, boxShadow: "0 0 0 2px #14b8a6", zIndex: 30 }}
               tabIndex={0}
               aria-label="Background image upload area"
             >
@@ -196,7 +196,7 @@ export default function ProfileImageEditModal({
                 <span className="text-base font-medium mb-1">
                   {bg.selectedFile ? bg.selectedFile.name : "Drag & drop or click to upload"}
                 </span>
-                <span className="text-xs text-gray-500 text-center">
+                <span className="text-xs text-gray-500 text-center z-20">
                   {bg.selectedFile
                     ? "Image ready to upload"
                     : "Recommended: landscape image, JPG/PNG/WebP/SVG/BMP/TIFF, max 5MB"}
