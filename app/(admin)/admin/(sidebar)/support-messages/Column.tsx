@@ -1,5 +1,3 @@
-//app/(admin)/support-messages/Column.tsx
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -37,19 +35,44 @@ function MessageActions({ message }: { message: SupportMessage }) {
   const updateMessage = useSupportMessagesStore((state) => state.updateMessage);
 
   const handleStatusUpdate = async (status: SupportMessageStatus) => {
-    const toastId = toast.loading("Updating status...");
-    
+    const toastId = `toast-${message.id}`; // Generate a unique toast ID for the message
+
     try {
+      // Show a loading toast while the update is in progress
+      toast.loading("Updating status...", { id: toastId });
+
       const result = await updateMessageStatus(message.id, status);
+
       if (result.success) {
+        // Update the message status locally
         updateMessage(message.id, { status });
-        toast.success(`Status updated to ${status.toLowerCase()}`, { id: toastId });
+
+        // Replace the loading toast with a success toast
+        toast.success(`Status updated to ${status.toLowerCase()}`, {
+          id: toastId, // Replace the existing toast
+          duration: Infinity, // Display for 5 seconds
+          icon: "✅", // Add a success icon
+          dismissible: true,
+        });
       } else {
-        throw new Error(result.error || 'Update failed');
+        // If the operation failed, throw an error
+        throw new Error(result.error || "Failed to update the status");
       }
     } catch (error) {
-      console.error('Status update error:', error);
-      toast.error("Failed to update status", { id: toastId });
+      console.error("Error updating status:", error);
+
+      // Replace the loading toast with an error toast
+      toast.error("Failed to update status", {
+        id: toastId, // Replace the existing toast
+        duration: Infinity, // Display for 7 seconds
+        icon: "❌", // Add an error icon
+        action: {
+          label: "Retry", // Add a retry button
+          onClick: () => handleStatusUpdate(status), // Retry logic
+        },
+      });
+
+      // Revert the status locally to its previous value
       updateMessage(message.id, { status: message.status });
     }
   };

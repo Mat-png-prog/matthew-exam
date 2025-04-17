@@ -70,14 +70,20 @@ export default async function SupportMessagesPage() {
 
   return (
     <>
-      <Toaster 
-        richColors 
-        closeButton 
-        position="top-center"
-        expand={true}
-        visibleToasts={5}
-        duration={5000}
-      />
+    <Toaster
+      richColors
+      closeButton
+      position="top-center"
+      expand={true}
+      visibleToasts={10}
+      duration={Infinity}
+      gap={10}
+      offset={{ top: 20, right: 20 }}
+      mobileOffset={{ bottom: 10 }}
+      containerAriaLabel="Toast notifications"
+      swipeDirections={['left', 'right']}
+      pauseWhenPageIsHidden={true}
+/>
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
