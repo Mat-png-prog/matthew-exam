@@ -35,18 +35,6 @@ export default function ProfileEditModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md max-h-[75vh] flex flex-col">
-        <DialogHeader className="flex items-center justify-between">
-          <DialogTitle className="sr-only">Profile Information</DialogTitle>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onClose}
-            className="absolute right-4 top-4"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </Button>
-        </DialogHeader>
         
         {/* Tab navigation */}
         <div className="flex justify-center gap-2 mt-4 mb-2">
