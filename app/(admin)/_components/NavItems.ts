@@ -46,6 +46,7 @@ export const navigation: NavItem[] = [
     label: "Reports",
     icon: FileText,
     links: [
+      { name: "Issues", href: "/admin/support-messages" },
       { name: "Sales", href: "/admin/reports/sales" },
       { name: "Inventory", href: "/admin/reports/inventory" },
       { name: "Performance", href: "/admin/reports/performance" },

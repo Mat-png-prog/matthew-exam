@@ -85,7 +85,7 @@ export default function ProfileImageEditModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-20 flex items-center justify-center">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm"
@@ -100,7 +100,7 @@ export default function ProfileImageEditModal({
         >
           <X size={20} />
         </Button>
-        <div className="overflow-y-auto p-6 pt-10">
+        <div className="overflow-y-auto p-6 pt-10 hover:z-50">
           {/* Sidebar-style info at top */}
           <div className="relative flex flex-col items-center mb-8">
             {/* Background image */}
