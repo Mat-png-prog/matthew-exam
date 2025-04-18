@@ -1,3 +1,5 @@
+// app/(customer)/layout.tsx
+
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
 import SessionProvider from "./SessionProvider";
@@ -71,7 +73,7 @@ export default async function CustomerLayout({
             orderCount={orderCount}
             wishlistCount={wishlistCount}
           />
-          <main className="flex-grow p-6 ml-64 transition-all duration-300 bg-slate-100 min-h-screen pt-16">
+          <main className="flex-grow p-6 ml-64 transition-all duration-300 bg-slate-100 min-h-screen">
             {children}
           </main>
         </div>
