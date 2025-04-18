@@ -2,13 +2,33 @@ import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
 import SessionProvider from "./SessionProvider";
 import { Toaster } from "react-hot-toast";
-import { UserRole } from "@prisma/client";
+import { Tier, UserRole } from "@prisma/client";
 import Navbar from "./_components/Navbar";
 import CustomerSidebar from "./_components/CustomerSidebar";
 import { getCustomerOrderCount } from "./_components/(sidebar)/_profile-actions/count-orders";
 import { getCustomerWishlistCount } from "./_components/(sidebar)/_profile-actions/count-wishlist";
+import { CustomerTier, User } from "./_components/(sidebar)/types";
 
 export const dynamic = "force-dynamic";
+
+// Function to map Tier (from database) to CustomerTier (frontend type)
+const mapTierToCustomerTier = (tier: Tier | undefined): CustomerTier | undefined => {
+  const tierMap: Record<Tier, CustomerTier> = {
+    BRONZE: CustomerTier.BRONZE,
+    SILVER: CustomerTier.SILVER,
+    GOLD: CustomerTier.GOLD,
+    PLATINUM: CustomerTier.PLATINUM,
+  };
+  return tier ? tierMap[tier] : undefined;
+};
+
+// Transform session.user to ensure compatibility with SessionUser type
+const transformSessionUser = (sessionUser: any): any => ({
+  ...sessionUser,
+  tier: mapTierToCustomerTier(sessionUser.tier), // Map tier
+  suburb: sessionUser.suburb ?? undefined,      // Convert null to undefined
+  postcode: sessionUser.postcode ?? "",         // Ensure postcode is always a string
+});
 
 export default async function CustomerLayout({
   children,
@@ -17,17 +37,18 @@ export default async function CustomerLayout({
 }) {
   const session = await validateRequest();
 
+  // Redirect to home page if the user is not a customer
   if (!session.user || session.user.role !== UserRole.CUSTOMER) {
     redirect("/");
   }
 
-  // Get the order count and wishlist count in parallel
+  // Fetch order count and wishlist count in parallel
   const [orderCountResponse, wishlistCountResponse] = await Promise.all([
     getCustomerOrderCount(),
     getCustomerWishlistCount(),
   ]);
 
-  // Extract the counts or use 0 as fallback
+  // Extract order count and wishlist count, with fallback to 0
   const orderCount = orderCountResponse.success
     ? orderCountResponse.totalOrders || 0
     : 0;
@@ -36,6 +57,9 @@ export default async function CustomerLayout({
     ? wishlistCountResponse.wishlistItemCount || 0
     : 0;
 
+  // Safely transform session.user to match the expected type
+  const customerUser = transformSessionUser(session.user);
+
   return (
     <SessionProvider value={session}>
       <Toaster />
@@ -43,7 +67,7 @@ export default async function CustomerLayout({
         <Navbar />
         <div className="flex">
           <CustomerSidebar
-            user={session.user}
+            user={customerUser}
             orderCount={orderCount}
             wishlistCount={wishlistCount}
           />
