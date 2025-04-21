@@ -25,7 +25,7 @@ export type OrderItemWithDetails = {
  */
 export type OrderWithItems = {
   id: string;
-  captivityBranch: string;
+  Branch: string;
   methodOfCollection: string;
   salesRep: string | null;
   referenceNumber: string | null;

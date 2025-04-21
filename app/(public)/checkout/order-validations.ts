@@ -5,7 +5,7 @@ import { z } from "zod";
  * Validation schema for order input data
  */
 export const orderValidationSchema = z.object({
-  captivityBranch: z.string().min(1, "Branch is required"),
+  Branch: z.string().min(1, "Branch is required"),
   methodOfCollection: z.string().min(1, "Method of collection is required"),
   salesRep: z.string().optional(),
   referenceNumber: z.string().optional(),

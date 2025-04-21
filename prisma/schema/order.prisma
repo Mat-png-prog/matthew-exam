@@ -1,7 +1,8 @@
+//Order.prisma
 model Order {
     id String @id @default(uuid())
 
-    captivityBranch     String
+    Branch              String
     methodOfCollection  String
     salesRep            String?
     referenceNumber     String?

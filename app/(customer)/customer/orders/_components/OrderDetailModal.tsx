@@ -138,7 +138,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 </p>
                 <p className="text-gray-700">
                   <span className="font-medium">Branch:</span>{" "}
-                  {order.captivityBranch}
+                  {order.Branch}
                 </p>
                 <p className="text-gray-700">
                   <span className="font-medium">Address:</span>{" "}

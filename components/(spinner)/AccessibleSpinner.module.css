@@ -1,8 +1,17 @@
+.spinnerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
 .spinner {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   position: relative;
-  margin: auto;
+  margin: 20px auto;
 }
 
 .doubleBounce1, .doubleBounce2 {
@@ -32,5 +41,25 @@
   }
   50% {
     transform: scale(1);
+  }
+}
+
+.loadingText {
+  color: #333; /* High contrast for readability */
+  font-size: 16px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: expandContract 1.5s infinite ease-in-out;
+}
+
+@keyframes expandContract {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
   }
 }

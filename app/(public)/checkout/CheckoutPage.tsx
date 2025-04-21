@@ -32,7 +32,7 @@ export default function Checkout() {
   const form = useForm<OrderInput>({
     resolver: zodResolver(orderValidationSchema),
     defaultValues: {
-      captivityBranch: "",
+      Branch: "",
       methodOfCollection: "",
       salesRep: "",
       referenceNumber: "",

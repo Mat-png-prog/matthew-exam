@@ -53,7 +53,7 @@ export default function CheckoutForm({
               {/* Captivity Branch */}
               <FormField
                 control={form.control}
-                name="captivityBranch"
+                name="Branch"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Captivity Branch*</FormLabel>
