@@ -103,8 +103,8 @@ export async function updateOrCreateOrder(
     // Prepare data for settings ONLY, using safe defaults for required fields.
     // Only status, totalAmount, and orderItems are excluded from user input and set as safe defaults.
     const settingsData = {
-      Branch: parsed.data.Branch ?? "",
-      methodOfCollection: parsed.data.methodOfCollection ?? "",
+      Branch: "",
+      methodOfCollection: "",
       salesRep: parsed.data.salesRep ?? null,                // optional
       referenceNumber: parsed.data.referenceNumber ?? null,  // optional
       firstName: parsed.data.firstName ?? "",
@@ -119,7 +119,7 @@ export async function updateOrCreateOrder(
       phone: parsed.data.phone ?? "",
       email: parsed.data.email ?? "",
       orderNotes: parsed.data.orderNotes ?? null,            // optional
-      agreeTerms: parsed.data.agreeTerms ?? false,
+      agreeTerms: false,
       receiveEmailReviews: parsed.data.receiveEmailReviews ?? false,
       // Prisma-required, but not editable in settings:
       status: undefined,         // Let Prisma use model default (PENDING)

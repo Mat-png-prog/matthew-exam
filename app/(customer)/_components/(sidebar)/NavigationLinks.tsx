@@ -44,7 +44,7 @@ export default function NavigationLinks({
       icon: CreditCard,
       label: "Payment Methods",
     },
-    { href: "/customer/settings/personal-info", icon: Settings, label: "Settings" },
+    { href: "/customer/settings", icon: Settings, label: "Settings" },
     { href: "/customer/support", icon: HelpCircle, label: "Support" },
   ];
 

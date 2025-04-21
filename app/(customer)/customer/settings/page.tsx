@@ -1,15 +1,15 @@
-//app/(customer)/customer/settings/personal-info/page.tsx
+//app/(customer)/customer/settings/page.tsx
 
 import { Metadata } from "next";
-import { UserSettingsForm } from "../_components/CustomerSettingsForm";
+import { UserSettingsForm } from "./_components/CustomerSettingsForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrderSettingsForm } from "../_components/CheckoutSettingsForm";
+import { OrderSettingsForm } from "./_components/CheckoutSettingsForm";
 import { redirect } from "next/navigation";
 import { validateRequest } from "@/auth";
 import { User, Order } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { cache } from "react";
-import { OrderData } from "../types";
+import { OrderData } from "./types";
 
 export const metadata: Metadata = {
   title: "Settings",

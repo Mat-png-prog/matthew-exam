@@ -2,11 +2,11 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { orderUpdateSchema } from "../validations";
-import { updateOrCreateOrder } from "../_actions/settings"; // CHANGE: use new action
+import { updateOrCreateOrder } from "../_actions/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +24,7 @@ import type { OrderData, OrderUpdateFormValues } from "../types";
 import { useTheme } from "next-themes";
 
 interface OrderSettingsFormProps {
-  order?: OrderData;    // Make order optional for insert flow
+  order?: OrderData;
   userId: string;
 }
 
@@ -33,11 +33,10 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
 
+  // Default values, excluding any logic for Branch, methodOfCollection, and agreeTerms
   const form = useForm<OrderUpdateFormValues>({
     resolver: zodResolver(orderUpdateSchema),
     defaultValues: {
-      Branch: order?.Branch ?? "",
-      methodOfCollection: order?.methodOfCollection ?? "",
       salesRep: order?.salesRep ?? "",
       referenceNumber: order?.referenceNumber ?? "",
       firstName: order?.firstName ?? "",
@@ -52,102 +51,123 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
       phone: order?.phone ?? "",
       email: order?.email ?? "",
       orderNotes: order?.orderNotes ?? "",
-      agreeTerms: order?.agreeTerms ?? false,
       receiveEmailReviews: order?.receiveEmailReviews ?? false,
     },
   });
 
-  const onSubmit = useCallback(async (values: OrderUpdateFormValues) => {
-    setIsLoading(true);
-    setLogs([]);
-    try {
-      // Pass orderId only if it exists, else undefined/null for insert
-      const result = await updateOrCreateOrder(order?.id, values, userId);
-      setLogs(result.logs ?? []);
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
+  // DETAILED CONSOLE LOGGING UTILITY
+  const logToConsole = useCallback(
+    (msg: string, ...args: any[]) => {
+      if (process.env.NODE_ENV !== "production") {
+        // Show detailed logs in dev
+        // eslint-disable-next-line no-console
+        console.log(`[CheckoutForm] ${msg}`, ...args);
       }
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-      console.error("Order submit error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [order?.id, userId]);
+    },
+    []
+  );
 
-  // ... (renderTextField and renderCheckboxField are unchanged)
-  const renderTextField = useCallback(({
-    name,
-    label,
-    placeholder,
-    type = "text",
-    component: Component = Input,
-  }: {
-    name: keyof OrderUpdateFormValues;
-    label: string;
-    placeholder: string;
-    type?: string;
-    component?: typeof Input | typeof Textarea;
-  }) => (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Component 
-              {...field}
-              type={type}
-              placeholder={placeholder}
-              disabled={isLoading}
-              className={Component === Textarea ? "min-h-[100px]" : ""}
-              value={field.value as string}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  ), [form.control, isLoading]);
+  // Log form state changes for debugging
+  useEffect(() => {
+    logToConsole("Form state changed", form.watch());
+  }, [form, logToConsole]);
 
-  const renderCheckboxField = useCallback(({
-    name,
-    label,
-  }: {
-    name: 'agreeTerms' | 'receiveEmailReviews';
-    label: string;
-  }) => (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="flex items-center space-x-2">
-          <FormControl>
-            <Checkbox
-              checked={field.value as boolean}
-              onCheckedChange={field.onChange}
-              disabled={isLoading}
-            />
-          </FormControl>
-          <FormLabel>{label}</FormLabel>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  ), [form.control, isLoading]);
+  const onSubmit = useCallback(
+    async (values: OrderUpdateFormValues) => {
+      setIsLoading(true);
+      setLogs([]);
+      logToConsole("Submitting form with values:", values);
+
+      try {
+        const result = await updateOrCreateOrder(order?.id, values, userId);
+        setLogs(result.logs ?? []);
+        logToConsole("Order action result:", result);
+
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.");
+        logToConsole("Order submit error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [order?.id, userId, logToConsole]
+  );
+
+  // Field rendering helpers
+  const renderTextField = useCallback(
+    ({
+      name,
+      label,
+      placeholder,
+      type = "text",
+      component: Component = Input,
+    }: {
+      name: keyof OrderUpdateFormValues;
+      label: string;
+      placeholder: string;
+      type?: string;
+      component?: typeof Input | typeof Textarea;
+    }) => (
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Component
+                {...field}
+                type={type}
+                placeholder={placeholder}
+                disabled={isLoading}
+                className={Component === Textarea ? "min-h-[100px]" : ""}
+                value={field.value as string}
+                autoComplete="off"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control, isLoading]
+  );
+
+  const renderCheckboxField = useCallback(
+    ({ name, label }: { name: "receiveEmailReviews"; label: string }) => (
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FormItem className="flex items-center space-x-2">
+            <FormControl>
+              <Checkbox
+                checked={field.value as boolean}
+                onCheckedChange={field.onChange}
+                disabled={isLoading}
+              />
+            </FormControl>
+            <FormLabel>{label}</FormLabel>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control, isLoading]
+  );
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* ...REMAINDER OF FORM FIELDS ARE UNCHANGED... */}
         <div className="p-4 bg-card rounded-lg border border-border">
           <h3 className="text-lg font-semibold mb-4 text-foreground">Order Details</h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {renderTextField({ name: "Branch", label: "Branch", placeholder: "Branch" })}
-            {renderTextField({ name: "methodOfCollection", label: "Method of Collection", placeholder: "Method of Collection" })}
+            {/* Branch & Method of Collection intentionally excluded */}
             {renderTextField({ name: "salesRep", label: "Sales Representative", placeholder: "Sales Representative" })}
             {renderTextField({ name: "referenceNumber", label: "Reference Number", placeholder: "Reference Number" })}
           </div>
@@ -174,23 +194,32 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
             name: "orderNotes",
             label: "Order Notes",
             placeholder: "Enter any additional notes here...",
-            component: Textarea
+            component: Textarea,
           })}
         </div>
         <div className="p-4 bg-card rounded-lg border border-border">
           <h3 className="text-lg font-semibold mb-4 text-foreground">Preferences</h3>
           <div className="space-y-4">
-            {renderCheckboxField({ name: "agreeTerms", label: "I agree to the terms and conditions" })}
-            {renderCheckboxField({ name: "receiveEmailReviews", label: "Receive email reviews" })}
+            {/* agreeTerms intentionally excluded */}
+            {renderCheckboxField({
+              name: "receiveEmailReviews",
+              label: "Receive email reviews",
+            })}
           </div>
         </div>
         <div className="flex justify-end mt-8">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isLoading}
             className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90"
           >
-            {isLoading ? (order?.id ? "Updating..." : "Saving...") : (order?.id ? "Update Order" : "Save Order")}
+            {isLoading
+              ? order?.id
+                ? "Updating..."
+                : "Saving..."
+              : order?.id
+              ? "Update Order"
+              : "Save Order"}
           </Button>
         </div>
         {logs.length > 0 && (
@@ -198,7 +227,9 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
             <h3 className="font-semibold mb-2 text-foreground">Process Logs</h3>
             <ul className="space-y-1 text-sm text-foreground overflow-auto max-h-[200px]">
               {logs.map((log, idx) => (
-                <li key={idx} className="break-words">{log}</li>
+                <li key={idx} className="break-words">
+                  {log}
+                </li>
               ))}
             </ul>
           </div>
@@ -207,3 +238,4 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
     </Form>
   );
 }
+

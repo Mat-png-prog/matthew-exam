@@ -55,8 +55,6 @@ export const personalInfoSchema = z.object({
 // Partial schema for updating any subset of order fields
 
 export const orderUpdateSchema = z.object({
-  Branch: z.string().min(1, "Branch is required"),
-  methodOfCollection: z.string().min(1, "Method of collection is required"),
   salesRep: z.string().min(1, "Sales representative is required"),
   referenceNumber: z.string().min(1, "Reference number is required"),
   firstName: z.string().min(1, "First name is required"),
@@ -71,9 +69,6 @@ export const orderUpdateSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email address"),
   orderNotes: z.string().optional(),
-  agreeTerms: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the terms and conditions",
-  }),
   receiveEmailReviews: z.boolean(),
 });
 
