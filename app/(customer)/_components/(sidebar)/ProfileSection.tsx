@@ -1,13 +1,13 @@
 //app/(customer)/_components/(sidebar)/ProfileSection.tsx
+
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import { User as UserIcon, Image as ImageIcon, Pencil } from "lucide-react";
 import { ProfileSectionProps } from "./types";
 import ProfileImageEditModal from "./ProfileImageEditModal";
 import ProfileEditModal from "./ProfileEditModal";
-import CustomerEditForm from "./CustomerEditForm";
 import CustomerInfoDisplay from "./CustomerInfoDisplay";
 import { useTheme } from "next-themes";
 import { Card } from "@/components/ui/card";
@@ -22,32 +22,48 @@ export default function ProfileSection({
   const [currentUser, setCurrentUser] = useState(user);
   const { theme } = useTheme();
 
-  function handleImagesUpdate(data: { avatarUrl: string | null, backgroundUrl: string | null}) {
-    setCurrentUser((prev) => {
-      return {
-        ...prev,
-        avatarUrl: data.avatarUrl,
-        backgroundUrl: data.backgroundUrl,
-      };
-    });
+  // Handle image updates
+  const handleImagesUpdate = useCallback((data: { avatarUrl: string | null, backgroundUrl: string | null}) => {
+    console.log("[ProfileSection] Updating images:", data);
+    setCurrentUser((prev) => ({
+      ...prev,
+      avatarUrl: data.avatarUrl,
+      backgroundUrl: data.backgroundUrl,
+    }));
+    // Close both modals when updating from edit mode
     setModalOpen(false);
-  }
+    if (infoModalOpen === "edit") {
+      setInfoModalOpen(null);
+    }
+    console.log("[ProfileSection] Closed modals after image update");
+  }, [infoModalOpen]);
 
-  function handleInfoUpdate(updated: typeof user) {
-    setCurrentUser(updated);
+  // Handle modal closing
+  const handleModalClose = useCallback(() => {
+    console.log("[ProfileSection] Closing image modal");
+    setModalOpen(false);
+  }, []);
+
+  // Handle info modal closing
+  const handleInfoModalClose = useCallback(() => {
+    console.log("[ProfileSection] Closing info modal");
     setInfoModalOpen(null);
-  }
+  }, []);
+
+  // Handle edit button click
+  const handleEditClick = useCallback(() => {
+    console.log("[ProfileSection] Edit button clicked");
+    setInfoModalOpen("edit");
+  }, []);
 
   // Determine background gradient based on theme
-  const getBackgroundStyle = () => {
+  const getBackgroundStyle = useCallback(() => {
     if (currentUser.backgroundUrl) return undefined;
     
-    if (theme === 'dark') {
-      return "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)";
-    } else {
-      return "linear-gradient(135deg, #bcd7ec 0%, #f6fafd 100%)";
-    }
-  };
+    return theme === 'dark'
+      ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+      : "linear-gradient(135deg, #bcd7ec 0%, #f6fafd 100%)";
+  }, [currentUser.backgroundUrl, theme]);
 
   return (
     <Card
@@ -94,11 +110,12 @@ export default function ProfileSection({
           <ImageIcon size={20} className="text-primary" />
         </Button>
       </div>
+
       {/* Avatar */}
       <div
         className="z-10 relative flex flex-col items-center w-full"
         style={{
-          marginTop: 80, // Align with background overlap
+          marginTop: 80,
         }}
       >
         <div
@@ -109,7 +126,7 @@ export default function ProfileSection({
             marginTop: isCollapsed ? -32 : -70,
             marginBottom: 8,
           }}
-          className="mx-auto" // Center horizontally
+          className="mx-auto"
         >
           <div
             className="rounded-full bg-slate-200 dark:bg-slate-700 border-4 border-background shadow"
@@ -150,10 +167,12 @@ export default function ProfileSection({
           </Button>
         </div>
       </div>
+
       {/* Customer display name */}
       <div className="text-xl font-semibold text-foreground mt-1 text-center">
         {currentUser.displayName || "Customer"}
       </div>
+
       {/* View and Edit buttons */}
       {!isCollapsed && (
         <div className="flex gap-1 mt-3 w-full h-1 justify-center">
@@ -166,7 +185,7 @@ export default function ProfileSection({
             View
           </Button>
           <Button
-            onClick={() => setInfoModalOpen("edit")}
+            onClick={handleEditClick}
             variant="default"
             className="rounded-full font-medium"
             style={{ minWidth: 120 }}
@@ -176,24 +195,32 @@ export default function ProfileSection({
         </div>
       )}
 
-      {/* Modal for updating images */}
+      {/* Standalone image edit modal */}
       <ProfileImageEditModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleModalClose}
         avatarUrl={currentUser.avatarUrl}
         backgroundUrl={currentUser.backgroundUrl}
         displayName={currentUser.displayName}
         onUpdate={handleImagesUpdate}
       />
-      {/* Modal for viewing/editing info */}
+
+      {/* Profile edit/view modal */}
       <ProfileEditModal
         isOpen={!!infoModalOpen}
-        onClose={() => setInfoModalOpen(null)}
+        onClose={handleInfoModalClose}
         mode={infoModalOpen === "edit" ? "edit" : "view"}
         onModeChange={m => setInfoModalOpen(m)}
       >
         {infoModalOpen === "edit" ? (
-          <CustomerEditForm user={currentUser} onUpdate={handleInfoUpdate} onCancel={() => setInfoModalOpen(null)} />
+          <ProfileImageEditModal
+            isOpen={true}
+            onClose={handleInfoModalClose} // Close both modals when canceling from edit mode
+            avatarUrl={currentUser.avatarUrl}
+            backgroundUrl={currentUser.backgroundUrl}
+            displayName={currentUser.displayName}
+            onUpdate={handleImagesUpdate}
+          />
         ) : (
           <CustomerInfoDisplay user={currentUser} viewMode="detailed" />
         )}

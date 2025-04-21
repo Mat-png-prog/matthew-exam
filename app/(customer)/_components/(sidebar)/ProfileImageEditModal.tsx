@@ -1,4 +1,7 @@
+//app/(customer)/_components/(sidebar)/ProfileImageEditModal.tsx
+
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import { User as UserIcon, Pencil, Image as ImageIcon, X } from "lucide-react";
@@ -98,7 +101,7 @@ export default function ProfileImageEditModal({
           className="z-50 absolute right-4 top-4 text-gray-500 hover:text-gray-700"
           aria-label="Close modal"
         >
-          <X size={20}  />
+          <X size={30}  />
         </Button>
         <div className="overflow-y-auto p-6 pt-10 hover:z-50">
           {/* Sidebar-style info at top */}
