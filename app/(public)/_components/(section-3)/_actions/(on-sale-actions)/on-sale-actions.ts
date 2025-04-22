@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_actions/(on-sale-actions)/on-sale-actions.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";
@@ -25,7 +27,7 @@ interface OnSaleResponse {
 }
 
 // Create action
-export async function createOnSale(
+export async function createOnSaleItem(
   formData: FormData,
 ): Promise<OnSaleResponse> {
   try {

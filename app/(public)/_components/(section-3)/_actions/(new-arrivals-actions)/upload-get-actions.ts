@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_actions/(new-arrivals-actions)/upload-get-actions.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";

@@ -18,6 +18,9 @@ model User {
     agreeTerms             Boolean                  @default(false)
     role                   UserRole                 @default(USER)
     tier                   Tier                     @default(BRONZE)
+    failedAttempts         Int                      @default(0) // Updated field name
+    lastFailedAttempt      DateTime?
+    keys                   Key[]
     Session                Session[]
     Product                Product[] //admin and public
     Slide                  Slide[] //editor
@@ -31,6 +34,21 @@ model User {
     Cart                   Cart?
     Wishlist               Wishlist? // Relation to user's wishlist
     SupportMessage         SupportMessage[]
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @updatedAt
 
     @@map("users")
+}
+
+model Key {
+    id             String   @id @default(uuid())
+    hashedPassword String?
+    userId         String
+    primary        Boolean  @default(true)
+    user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+
+    @@index([userId])
+    @@map("keys")
 }

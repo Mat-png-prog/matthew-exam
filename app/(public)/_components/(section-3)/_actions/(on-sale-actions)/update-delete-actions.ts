@@ -1,4 +1,5 @@
-//app/(public)/_components/(section-3)/_actions/(best-seller-actions.ts)/update-delete-actions.ts
+//app/(public)/_components/(section-3)/_actions/(on-sale-actions)/update-delete-actions.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";
@@ -22,28 +23,32 @@ async function deleteImageFromBlob(url: string) {
   try {
     const key = new URL(url).pathname.replace(/^\/+/, "");
     await blobDel(key);
-    console.log("[Blob Delete] BestSeller image deleted from:", key);
+    console.log("[Blob Delete] OnSale image deleted from:", key);
   } catch (err) {
-    console.error("[Blob Delete] Failed to delete BestSeller blob:", err);
+    console.error("[Blob Delete] Failed to delete OnSale blob:", err);
   }
 }
 
-export async function updateBestSeller(id: string, formData: FormData) {
+export async function updateOnSale(id: string, formData: FormData) {
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
     if (user.role !== "EDITOR") return redirect("/");
 
     const name = formData.get("name") as string;
-    const price = parseFloat(formData.get("price") as string);
+    const originalPrice = parseFloat(formData.get("originalPrice") as string);
+    const salePrice = parseFloat(formData.get("salePrice") as string);
     const rating = parseInt(formData.get("rating") as string);
 
-    if (!name || !price || !rating) throw new Error("All fields are required");
+    if (!name || !originalPrice || !salePrice || !rating)
+      throw new Error("All fields are required");
     if (rating < 1 || rating > 5) throw new Error("Rating must be between 1 and 5");
-    if (price <= 0) throw new Error("Price must be greater than 0");
+    if (originalPrice <= 0 || salePrice <= 0) throw new Error("Prices must be > 0");
+    if (salePrice >= originalPrice)
+      throw new Error("Sale price must be less than original price");
 
-    const existing = await prisma.bestSeller.findUnique({ where: { id } });
-    if (!existing) throw new Error("Best Seller not found");
+    const existing = await prisma.onSale.findUnique({ where: { id } });
+    if (!existing) throw new Error("OnSale item not found");
 
     let imageUrl = existing.imageUrl;
     const file = formData.get("image") as File;
@@ -54,45 +59,45 @@ export async function updateBestSeller(id: string, formData: FormData) {
       if (file.size > MAX_IMAGE_SIZE)
         throw new Error("File size must be < 6MB");
       const fileExt = file.name.split(".").pop() || "jpg";
-      const path = `best-seller/product_${user.id}_${Date.now()}.${fileExt}`;
+      const path = `on-sale/product_${user.id}_${Date.now()}.${fileExt}`;
       const blob = await put(path, file, { access: "public", addRandomSuffix: false });
       if (!blob.url) throw new Error("Failed to upload image.");
       await deleteImageFromBlob(existing.imageUrl);
       imageUrl = blob.url;
     }
 
-    const updated = await prisma.bestSeller.update({
+    const updated = await prisma.onSale.update({
       where: { id },
-      data: { name, price, rating, imageUrl },
+      data: { name, originalPrice, salePrice, rating, imageUrl },
     });
 
-    console.log(`[Update] BestSeller ${id} updated by user ${user.id}`);
+    console.log(`[Update] OnSale ${id} updated by user ${user.id}`);
 
     return { success: true, data: updated };
   } catch (error) {
-    console.error("[Update BestSeller]", error);
+    console.error("[Update OnSale]", error);
     return { success: false, error: error instanceof Error ? error.message : "Unexpected error" };
   }
 }
 
-export async function deleteBestSeller(id: string) {
+export async function deleteOnSale(id: string) {
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
     if (user.role !== "EDITOR") return redirect("/");
 
-    const existing = await prisma.bestSeller.findUnique({ where: { id } });
-    if (!existing) throw new Error("Best Seller not found");
+    const existing = await prisma.onSale.findUnique({ where: { id } });
+    if (!existing) throw new Error("OnSale item not found");
 
     await deleteImageFromBlob(existing.imageUrl);
 
-    await prisma.bestSeller.delete({ where: { id } });
+    await prisma.onSale.delete({ where: { id } });
 
-    console.log(`[Delete] BestSeller ${id} deleted by user ${user.id}`);
+    console.log(`[Delete] OnSale ${id} deleted by user ${user.id}`);
 
     return { success: true };
   } catch (error) {
-    console.error("[Delete BestSeller]", error);
+    console.error("[Delete OnSale]", error);
     return { success: false, error: error instanceof Error ? error.message : "Unexpected error" };
   }
 }

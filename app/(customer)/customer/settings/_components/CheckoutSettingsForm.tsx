@@ -6,7 +6,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { orderUpdateSchema } from "../validations";
-import { updateOrCreateOrder } from "../_actions/settings";
+import { updateOrder } from "../_actions/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +24,7 @@ import type { OrderData, OrderUpdateFormValues } from "../types";
 import { useTheme } from "next-themes";
 
 interface OrderSettingsFormProps {
-  order?: OrderData;
+  order: OrderData;
   userId: string;
 }
 
@@ -79,7 +79,7 @@ export function OrderSettingsForm({ order, userId }: OrderSettingsFormProps) {
       logToConsole("Submitting form with values:", values);
 
       try {
-        const result = await updateOrCreateOrder(order?.id, values, userId);
+        const result = await updateOrder(order?.id, values, userId);
         setLogs(result.logs ?? []);
         logToConsole("Order action result:", result);
 

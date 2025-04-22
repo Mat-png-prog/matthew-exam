@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_store/(new-store)/new-arrival-store.ts
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
@@ -5,6 +7,10 @@ import {
   getNewArrivals,
   getNewArrivalById,
 } from "../../_actions/(new-arrivals-actions)/upload-get-actions";
+import {
+  updateNewArrival,
+  deleteNewArrival,
+} from "../../_actions/(new-arrivals-actions)/update-delete-actions";
 import {
   createSecureStorage,
   isLocalStorageAvailable,
@@ -26,17 +32,17 @@ interface NewArrival {
 }
 
 interface NewArrivalsState {
-  // State
   newArrivals: NewArrival[];
   isLoading: boolean;
   error: string | null;
   selectedNewArrival: NewArrival | null;
   lastFetched: number | null;
 
-  // Actions
   fetchNewArrivals: () => Promise<void>;
   fetchNewArrivalById: (id: string) => Promise<void>;
   createNewArrival: (formData: FormData) => Promise<void>;
+  updateNewArrival: (id: string, formData: FormData) => Promise<void>;
+  deleteNewArrival: (id: string) => Promise<void>;
   setSelectedNewArrival: (newArrival: NewArrival | null) => void;
   clearError: () => void;
 }
@@ -47,19 +53,15 @@ const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000;
 const useNewArrivalsStore = create<NewArrivalsState>()(
   persist(
     (set, get) => ({
-      // Initial state
       newArrivals: [],
       isLoading: false,
       error: null,
       selectedNewArrival: null,
       lastFetched: null,
 
-      // Fetch all new arrivals with caching
       fetchNewArrivals: async () => {
         const currentTime = Date.now();
         const lastFetched = get().lastFetched;
-
-        // Only fetch if no cache exists or cache has expired
         if (!lastFetched || currentTime - lastFetched > CACHE_DURATION) {
           set({ isLoading: true, error: null });
           try {
@@ -85,15 +87,12 @@ const useNewArrivalsStore = create<NewArrivalsState>()(
         }
       },
 
-      // Fetch single new arrival by ID
       fetchNewArrivalById: async (id: string) => {
-        // Check if the item already exists in our cached data
         const existingItem = get().newArrivals.find((item) => item.id === id);
         if (existingItem) {
           set({ selectedNewArrival: existingItem });
           return;
         }
-
         set({ isLoading: true, error: null });
         try {
           const response = await getNewArrivalById(id);
@@ -114,18 +113,16 @@ const useNewArrivalsStore = create<NewArrivalsState>()(
         }
       },
 
-      // Create new arrival
       createNewArrival: async (formData: FormData) => {
         set({ isLoading: true, error: null });
         try {
           const response = await createNewArrival(formData);
           if (response.success) {
-            // Update the newArrivals list with the new item
             const currentNewArrivals = get().newArrivals;
             set({
               newArrivals: [...currentNewArrivals, response.data],
               selectedNewArrival: response.data,
-              lastFetched: Date.now(), // Update last fetched timestamp
+              lastFetched: Date.now(),
             });
           } else {
             set({ error: response.error || "Failed to create new arrival" });
@@ -142,18 +139,56 @@ const useNewArrivalsStore = create<NewArrivalsState>()(
         }
       },
 
-      // Set selected new arrival
+      updateNewArrival: async (id, formData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await updateNewArrival(id, formData);
+          if (response.success) {
+            set((state) => ({
+              newArrivals: state.newArrivals.map((n) =>
+                n.id === id ? { ...n, ...response.data } : n
+              ),
+              selectedNewArrival: response.data,
+            }));
+          } else {
+            set({ error: response.error || "Failed to update" });
+          }
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unexpected error" });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      deleteNewArrival: async (id) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await deleteNewArrival(id);
+          if (response.success) {
+            set((state) => ({
+              newArrivals: state.newArrivals.filter((n) => n.id !== id),
+              selectedNewArrival: null,
+            }));
+          } else {
+            set({ error: response.error || "Failed to delete" });
+          }
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unexpected error" });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       setSelectedNewArrival: (newArrival: NewArrival | null) => {
         set({ selectedNewArrival: newArrival });
       },
 
-      // Clear error
       clearError: () => {
         set({ error: null });
       },
     }),
     {
-      name: "new-arrivals-storage", // Name of the item in localStorage
+      name: "new-arrivals-storage",
       storage: isLocalStorageAvailable() ? createSecureStorage() : undefined,
       partialize: (state) => ({
         newArrivals: sanitizeProductData(state.newArrivals),

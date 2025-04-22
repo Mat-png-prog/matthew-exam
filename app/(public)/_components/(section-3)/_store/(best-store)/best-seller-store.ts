@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_store/(best-store)/best-seller-store.ts
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
@@ -5,6 +7,10 @@ import {
   getBestSeller,
   getBestSellerById,
 } from "../../_actions/(best-seller-actions.ts)/upload-get-actions";
+import {
+  updateBestSeller,
+  deleteBestSeller,
+} from "../../_actions/(best-seller-actions.ts)/update-delete-actions";
 import {
   createSecureStorage,
   isLocalStorageAvailable,
@@ -26,40 +32,35 @@ interface BestSeller {
 }
 
 interface BestSellerState {
-  // State
   bestSellers: BestSeller[];
   isLoading: boolean;
   error: string | null;
   selectedBestSeller: BestSeller | null;
   lastFetched: number | null;
 
-  // Actions
   fetchBestSellers: () => Promise<void>;
   fetchBestSellerById: (id: string) => Promise<void>;
   createBestSeller: (formData: FormData) => Promise<void>;
+  updateBestSeller: (id: string, formData: FormData) => Promise<void>;
+  deleteBestSeller: (id: string) => Promise<void>;
   setSelectedBestSeller: (bestSeller: BestSeller | null) => void;
   clearError: () => void;
 }
 
-// Cache duration: 30 days in milliseconds
 const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000;
 
 const useBestSellerStore = create<BestSellerState>()(
   persist(
     (set, get) => ({
-      // Initial state
       bestSellers: [],
       isLoading: false,
       error: null,
       selectedBestSeller: null,
       lastFetched: null,
 
-      // Fetch all best sellers with caching
       fetchBestSellers: async () => {
         const currentTime = Date.now();
         const lastFetched = get().lastFetched;
-
-        // Only fetch if no cache exists or cache has expired
         if (!lastFetched || currentTime - lastFetched > CACHE_DURATION) {
           set({ isLoading: true, error: null });
           try {
@@ -85,15 +86,12 @@ const useBestSellerStore = create<BestSellerState>()(
         }
       },
 
-      // Fetch single best seller by ID
       fetchBestSellerById: async (id: string) => {
-        // Check if the item already exists in our cached data
         const existingItem = get().bestSellers.find((item) => item.id === id);
         if (existingItem) {
           set({ selectedBestSeller: existingItem });
           return;
         }
-
         set({ isLoading: true, error: null });
         try {
           const response = await getBestSellerById(id);
@@ -114,18 +112,16 @@ const useBestSellerStore = create<BestSellerState>()(
         }
       },
 
-      // Create best seller
       createBestSeller: async (formData: FormData) => {
         set({ isLoading: true, error: null });
         try {
           const response = await createBestSeller(formData);
           if (response.success) {
-            // Update the bestSellers list with the new item
             const currentBestSellers = get().bestSellers;
             set({
               bestSellers: [...currentBestSellers, response.data],
               selectedBestSeller: response.data,
-              lastFetched: Date.now(), // Update last fetched timestamp
+              lastFetched: Date.now(),
             });
           } else {
             set({ error: response.error || "Failed to create best seller" });
@@ -142,18 +138,56 @@ const useBestSellerStore = create<BestSellerState>()(
         }
       },
 
-      // Set selected best seller
+      updateBestSeller: async (id, formData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await updateBestSeller(id, formData);
+          if (response.success) {
+            set((state) => ({
+              bestSellers: state.bestSellers.map((b) =>
+                b.id === id ? { ...b, ...response.data } : b
+              ),
+              selectedBestSeller: response.data,
+            }));
+          } else {
+            set({ error: response.error || "Failed to update" });
+          }
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unexpected error" });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      deleteBestSeller: async (id) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await deleteBestSeller(id);
+          if (response.success) {
+            set((state) => ({
+              bestSellers: state.bestSellers.filter((b) => b.id !== id),
+              selectedBestSeller: null,
+            }));
+          } else {
+            set({ error: response.error || "Failed to delete" });
+          }
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : "Unexpected error" });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       setSelectedBestSeller: (bestSeller: BestSeller | null) => {
         set({ selectedBestSeller: bestSeller });
       },
 
-      // Clear error
       clearError: () => {
         set({ error: null });
       },
     }),
     {
-      name: "best-seller-storage", // Name of the item in localStorage
+      name: "best-seller-storage",
       storage: isLocalStorageAvailable() ? createSecureStorage() : undefined,
       partialize: (state) => ({
         bestSellers: sanitizeProductData(state.bestSellers),

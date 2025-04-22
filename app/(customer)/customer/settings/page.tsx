@@ -10,6 +10,7 @@ import { User, Order } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { cache } from "react";
 import { OrderData } from "./types";
+import { SecurityForm } from "./_components/SecuritySetingsForm";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -109,7 +110,13 @@ export default async function SettingsPage() {
               value="checkout" 
               className="space-y-3 pt-1"
             >
-              <OrderSettingsForm order={latestOrderFromDB ? latestOrder : undefined} userId={user.id} />
+              <OrderSettingsForm order={latestOrder} userId={user.id} />
+            </TabsContent>
+            <TabsContent 
+              value="security" 
+              className="space-y-3 pt-1"
+            >
+              <SecurityForm userId={user.id} />
             </TabsContent>
           </div>
         </Tabs>
@@ -117,6 +124,6 @@ export default async function SettingsPage() {
     );
   } catch (error) {
     console.error("Settings page error:", error);
-    return redirect("/login");
+    return redirect("/");
   }
 }

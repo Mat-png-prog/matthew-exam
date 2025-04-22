@@ -1,82 +1,127 @@
-// _components/(new-arrivals)/NewArrivals.tsx
-import { useMemo, useEffect } from "react";
+// app/(public)/_components/(section-3)/_components/(new-arrivals)/NewArrivals.tsx
+
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Star } from "lucide-react";
 import useNewArrivalsStore from "../../_store/(new-store)/new-arrival-store";
-import { ProductCardProps } from "../../types";
-import { useSession } from "@/app/SessionProvider";
+import Image from "next/image";
 
-const SLOTS_PER_PAGE = {
-  mobile: 2,
-  desktop: 4,
-};
+interface EditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  newArrivalId: string | null;
+}
 
-export const useNewArrivalsContent = () => {
-  const { newArrivals, fetchNewArrivals } = useNewArrivalsStore();
-  const { user } = useSession();
-  const isEditor = user?.role === "EDITOR";
+export const NewArrivalEditModal: React.FC<EditModalProps> = ({
+  isOpen,
+  onClose,
+  newArrivalId,
+}) => {
+  const {
+    selectedNewArrival,
+    fetchNewArrivalById,
+    updateNewArrival,
+    isLoading,
+    error,
+    clearError,
+  } = useNewArrivalsStore();
+  const [rating, setRating] = useState(0);
 
-  // Fetch data on mount
   useEffect(() => {
-    fetchNewArrivals();
-  }, [fetchNewArrivals]);
+    if (isOpen && newArrivalId) fetchNewArrivalById(newArrivalId);
+  }, [isOpen, newArrivalId, fetchNewArrivalById]);
 
-  return useMemo(() => {
-    // Convert NewArrivals to ProductCardProps
-    const convertedArrivals: ProductCardProps[] = newArrivals.map((item) => ({
-      name: item.name,
-      price: item.price.toString(),
-      rating: item.rating,
-      image: item.imageUrl,
-    }));
+  useEffect(() => {
+    if (selectedNewArrival) setRating(selectedNewArrival.rating);
+  }, [selectedNewArrival]);
 
-    // Create pages for mobile and desktop
-    const mobilePages: ProductCardProps[][] = [];
-    const desktopPages: ProductCardProps[][] = [];
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    clearError();
+    if (!selectedNewArrival) return;
+    const formData = new FormData(e.currentTarget);
+    formData.append("rating", rating.toString());
+    await updateNewArrival(selectedNewArrival.id, formData);
+    onClose();
+  };
 
-    // Fill mobile pages (2 items per page)
-    for (let i = 0; i < convertedArrivals.length; i += SLOTS_PER_PAGE.mobile) {
-      mobilePages.push(convertedArrivals.slice(i, i + SLOTS_PER_PAGE.mobile));
-    }
+  if (!selectedNewArrival) return null;
 
-    // Fill desktop pages (4 items per page)
-    for (let i = 0; i < convertedArrivals.length; i += SLOTS_PER_PAGE.desktop) {
-      desktopPages.push(convertedArrivals.slice(i, i + SLOTS_PER_PAGE.desktop));
-    }
-
-    // Add empty slots if needed (only for editors)
-    const addEmptySlots = (
-      pages: ProductCardProps[][],
-      slotsPerPage: number,
-    ) => {
-      // If not an editor, return pages as is
-      if (!isEditor) {
-        return pages.length > 0 ? pages : [[]];
-      }
-
-      if (pages.length === 0) {
-        // If no items, create a page with all empty slots
-        return [Array(slotsPerPage).fill({ isEmpty: true })];
-      }
-
-      const lastPage = pages[pages.length - 1];
-      const remainingSlots = slotsPerPage - (lastPage.length % slotsPerPage);
-
-      if (remainingSlots < slotsPerPage) {
-        // Fill remaining slots in last page
-        const emptySlots = Array(remainingSlots).fill({ isEmpty: true });
-        lastPage.push(...emptySlots);
-      }
-
-      // Add a new page with empty slots if all pages are full
-      if (lastPage.length === slotsPerPage) {
-        pages.push(Array(slotsPerPage).fill({ isEmpty: true }));
-      }
-
-      return pages;
-    };
-
-    return {
-      mobile: addEmptySlots(mobilePages, SLOTS_PER_PAGE.mobile),
-      desktop: addEmptySlots(desktopPages, SLOTS_PER_PAGE.desktop),
-    };
-  }, [newArrivals, isEditor]);
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit New Arrival</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Product Name</Label>
+            <Input
+              id="name"
+              name="name"
+              defaultValue={selectedNewArrival.name}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price">Price</Label>
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={selectedNewArrival.price}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Current Image</Label>
+            <Image
+              src={selectedNewArrival.imageUrl}
+              alt="Current"
+              className="w-32 h-20 object-contain border rounded-md"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="image">New Image (optional)</Label>
+            <Input id="image" name="image" type="file" accept="image/*" />
+          </div>
+          <div className="space-y-2">
+            <Label>Rating</Label>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <Star
+                  key={value}
+                  className={`w-6 h-6 cursor-pointer transition-colors ${
+                    value <= rating
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300 hover:text-yellow-200"
+                  }`}
+                  onClick={() => setRating(value)}
+                />
+              ))}
+            </div>
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => { clearError(); onClose(); }}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading || rating === 0}>
+              {isLoading ? "Saving..." : "Update"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 };

@@ -1,11 +1,6 @@
-// ProductSlide.tsx
-import React, { useState } from "react";
-import ProductCard from "./ProductCard";
-import { UploadModal } from "./(new-arrivals)/UploadModal";
-import { BestSellerUploadModal } from "./(best-seller)/BestSellerUploadModal";
-import { EmptySlotCard } from "./EmptySlotCard";
-import { ProductSlideProps } from "../types";
-import { OnSaleUploadModal } from "./(on-sale)/OnSaleModal";
+import React from "react";
+import { ProductCardWithActions } from "./ProductCard";
+import { ProductCardProps, ProductSlideProps } from "../types";
 
 export const ProductSlide: React.FC<ProductSlideProps> = ({
   products,
@@ -13,59 +8,33 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
   activeTab,
   tabName,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  if (!products || products.length === 0) {
-    return null;
-  }
-
-  const displayProducts = isMobile ? products.slice(0, 2) : products;
-
-  const renderModal = () => {
-    switch (activeTab) {
-      case 0:
-        return (
-          <UploadModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
-        );
-      case 1:
-        return (
-          <BestSellerUploadModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
-        );
-      case 2:
-        return (
-          <OnSaleUploadModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  console.log(`[ProductSlide] Rendering ${products.length} products for tab: ${tabName}`);
+  
+  // Calculate grid columns based on viewport
+  const gridCols = isMobile 
+    ? "grid-cols-1 sm:grid-cols-2" 
+    : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4";
 
   return (
-    <>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 px-4">
-        {displayProducts.map((product, idx) =>
-          "isEmpty" in product ? (
-            <EmptySlotCard
-              key={`empty-${idx}`}
-              onAdd={() => setIsModalOpen(true)}
-              tabName={tabName}
-            />
-          ) : (
-            <ProductCard key={`product-${idx}`} {...product} />
-          ),
-        )}
-      </div>
-
-      {renderModal()}
-    </>
+    <div className={`grid ${gridCols} gap-6`}>
+      {products.length > 0 ? (
+        products.map((product: ProductCardProps, idx: number) => (
+          <ProductCardWithActions 
+            key={product.id || `product-${idx}`} 
+            {...product}
+          />
+        ))
+      ) : (
+        // Empty state
+        Array(isMobile ? 2 : 4).fill(0).map((_, idx: number) => (
+          <div 
+            key={`empty-${idx}`}
+            className="border border-dashed border-border rounded-lg h-52 flex items-center justify-center text-muted-foreground"
+          >
+            No products to display
+          </div>
+        ))
+      )}
+    </div>
   );
-};
+}

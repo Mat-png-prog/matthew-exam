@@ -1,4 +1,5 @@
-// OnSaleUploadModal.tsx
+//app/(public)/_components/(section-3)/_components/(on-sale)/OnSaleModal.tsx
+
 import React, { useState } from "react";
 import {
   Dialog,

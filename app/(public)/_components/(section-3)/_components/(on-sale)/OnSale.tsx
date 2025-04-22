@@ -1,4 +1,5 @@
-// _components/(on-sale)/OnSale.tsx
+//app/(public)/_components/(section-3)/_components/(on-sale)/OnSale.tsx
+
 import { useMemo, useEffect } from "react";
 import { ProductCardProps, TabContent } from "../../types";
 import { useSession } from "@/app/SessionProvider";

@@ -1,4 +1,4 @@
-//app/(public)/_components/(section-3)/_components/(new-arrivals)/UploadModal.tsx
+//app/(public)/_components/(section-3)/_components/(best-seller)/BestSellerDeleteModal.tsx
 
 import React from "react";
 import {
@@ -8,24 +8,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import useNewArrivalsStore from "../../_store/(new-store)/new-arrival-store";
+import useBestSellerStore from "../../_store/(best-store)/best-seller-store";
 
 interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  newArrivalId: string | null;
+  bestSellerId: string | null;
 }
 
-export const NewArrivalDeleteModal: React.FC<DeleteModalProps> = ({
+export const BestSellerDeleteModal: React.FC<DeleteModalProps> = ({
   isOpen,
   onClose,
-  newArrivalId,
+  bestSellerId,
 }) => {
-  const { deleteNewArrival, isLoading, clearError } = useNewArrivalsStore();
+  const { deleteBestSeller, isLoading, clearError } = useBestSellerStore();
 
   const handleDelete = async () => {
-    if (newArrivalId) {
-      await deleteNewArrival(newArrivalId);
+    if (bestSellerId) {
+      await deleteBestSeller(bestSellerId);
       onClose();
     }
   };

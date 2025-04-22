@@ -3,13 +3,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
+import { 
   OrderUpdateFormValues,
   orderUpdateSchema,
   PersonalInfoFormValues,
-  SecurityFormValues
-} from ".././validations";
-import { prisma } from "@/lib/prisma";
+} from ".././validations"; 
+import prisma from "@/lib/prisma";
 
 /**
  * Updates the personal information of a user.
@@ -80,17 +79,28 @@ export async function updatePersonalInfo(
 }
 
 /**
- * Update (if order exists) or create (if not) an order for settings form.
- * Only allow settings-appropriate fields. Set others to null/default.
+ * Updates the user's checkout preferences.
+ * This implementation stores checkout settings in the User table.
+ * Assumes you have added the corresponding fields to your User Prisma model:
+ *   - defaultShippingMethod: String?
+ *   - savePaymentInfo: Boolean?
+ * If these fields do not exist, you need to add them to the User model and run `prisma migrate`.
  */
-export async function updateOrCreateOrder(
-  orderId: string | undefined | null,
-  values: OrderUpdateFormValues,
-  userId: string
-) {
+
+/**
+ * Update user's checkout default preferences.
+ * Assumes corresponding fields exist on the User model (add and migrate if missing).
+
+ * Update an existing order with validated data.
+ * - orderId: string (the order to update)
+ * - values: OrderUpdateFormValues (validated partial fields)
+ * - userId: string (for security - only allow users to update their own orders, or check admin)
+ * Returns logs for transparency.
+ */
+export async function updateOrder(orderId: string, values: OrderUpdateFormValues, userId: string) {
   const logs: string[] = [];
   try {
-    logs.push(`[${new Date().toISOString()}] Starting order upsert for user ${userId}`);
+    logs.push(`[${new Date().toISOString()}] Starting order update for order ${orderId} by user ${userId}`);
 
     // Validate input
     const parsed = orderUpdateSchema.safeParse(values);
@@ -100,118 +110,31 @@ export async function updateOrCreateOrder(
     }
     logs.push(`[${new Date().toISOString()}] Validation passed`);
 
-    // Prepare data for settings ONLY, using safe defaults for required fields.
-    // Only status, totalAmount, and orderItems are excluded from user input and set as safe defaults.
-    const settingsData = {
-      Branch: "",
-      methodOfCollection: "",
-      salesRep: parsed.data.salesRep ?? null,                // optional
-      referenceNumber: parsed.data.referenceNumber ?? null,  // optional
-      firstName: parsed.data.firstName ?? "",
-      lastName: parsed.data.lastName ?? "",
-      companyName: parsed.data.companyName ?? "",
-      countryRegion: parsed.data.countryRegion ?? "",
-      streetAddress: parsed.data.streetAddress ?? "",
-      apartmentSuite: parsed.data.apartmentSuite ?? null,    // optional
-      townCity: parsed.data.townCity ?? "",
-      province: parsed.data.province ?? "",
-      postcode: parsed.data.postcode ?? "",
-      phone: parsed.data.phone ?? "",
-      email: parsed.data.email ?? "",
-      orderNotes: parsed.data.orderNotes ?? null,            // optional
-      agreeTerms: false,
-      receiveEmailReviews: parsed.data.receiveEmailReviews ?? false,
-      // Prisma-required, but not editable in settings:
-      status: undefined,         // Let Prisma use model default (PENDING)
-      totalAmount: 0,            // Settings cannot set this, use 0 as safe default
-      userId,
-      // orderItems not set here, never touch in settings form!
-    };
-
-    let order;
-    if (orderId) {
-      order = await prisma.order.findUnique({ where: { id: orderId } });
-    } else {
-      order = null;
+    // Optionally, check user permission (update your logic as needed)
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) {
+      logs.push(`[${new Date().toISOString()}] Order not found`);
+      return { success: false, message: "Order not found", logs };
+    }
+    if (order.userId !== userId /* && !isAdmin(userId) */) {
+      logs.push(`[${new Date().toISOString()}] Access denied`);
+      return { success: false, message: "You do not have permission to update this order.", logs };
     }
 
-    if (order) {
-      await prisma.order.update({
-        where: { id: orderId! },
-        data: settingsData,
-      });
-      logs.push(`[${new Date().toISOString()}] Order updated successfully`);
-      revalidatePath("/customer/orders");
-      revalidatePath("/customer/settings");
-      logs.push(`[${new Date().toISOString()}] Pages revalidated`);
-      return { success: true, message: "Order updated successfully", logs };
-    } else {
-      // Remove undefined keys to prevent Prisma client error (status: undefined)
-      const createData: typeof settingsData = { ...settingsData };
-      if (createData.status === undefined) {
-        delete (createData as any).status;
-      }
-      await prisma.order.create({
-        data: createData,
-      });
-      logs.push(`[${new Date().toISOString()}] Order created successfully`);
-      revalidatePath("/customer/orders");
-      revalidatePath("/customer/settings");
-      logs.push(`[${new Date().toISOString()}] Pages revalidated`);
-      return { success: true, message: "Order created successfully", logs };
-    }
+    // Update order
+    await prisma.order.update({
+      where: { id: orderId },
+      data: parsed.data,
+    });
+    logs.push(`[${new Date().toISOString()}] Order updated successfully`);
+
+    revalidatePath("/customer/orders");
+    logs.push(`[${new Date().toISOString()}] Orders page revalidated`);
+
+    return { success: true, message: "Order updated successfully", logs };
   } catch (error) {
     logs.push(`[${new Date().toISOString()}] Error: ${error instanceof Error ? error.message : String(error)}`);
-    console.error("Order save error:", error);
-    return { success: false, message: "Order save failed", logs };
+    console.error("Order update error:", error);
+    return { success: false, message: "Order update failed", logs };
   }
 }
-
-/*
-// Uncomment and implement this function if required in the future.
-export async function updateSecurity(
-  userId: string,
-  values: SecurityFormValues
-) {
-  try {
-    // Get current user with password
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        passwordHash: true,
-      },
-    });
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
-
-    // Verify current password
-    // const isPasswordValid = await compare(values.currentPassword, user.passwordHash);
-    // if (!isPasswordValid) {
-    //   return { success: false, message: "Current password is incorrect" };
-    // }
-
-    // Hash new password
-    // const hashedPassword = await hash(values.newPassword, 10);
-
-    // Update password
-    // await prisma.user.update({
-    //   where: {
-    //     id: userId,
-    //   },
-    //   data: {
-    //     passwordHash: hashedPassword,
-    //   },
-    // });
-
-    // return { success: true, message: "Password updated successfully" };
-  } catch (error) {
-    console.error("Error updating security info:", error);
-    return { success: false, message: "Failed to update security information" };
-  }
-}
-*/

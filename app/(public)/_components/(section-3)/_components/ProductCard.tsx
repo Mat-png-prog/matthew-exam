@@ -1,66 +1,111 @@
-import React from "react";
+//app/(public)/_components/(section-3)/_components/ProductCard.tsx
+
+import React, { useState } from "react";
+import { Pencil, Trash2, Star } from "lucide-react";
+import { useSession } from "@/app/SessionProvider";
+import { BestSellerEditModal } from "./(best-seller)/BestSellerEditModal";
+import { BestSellerDeleteModal } from "./(best-seller)/BestSellerDeleteModal";
 import Image from "next/image";
-import { Package, Star } from "lucide-react";
-import { ProductCardProps } from "../types";
+import { ProductCardProps, UserSession } from "../types";
 
-const ProductCard: React.FC<ProductCardProps> = (props) => {
-  const { name, rating, image } = props;
+export const ProductCardWithActions: React.FC<ProductCardProps> = (props) => {
+  const { user } = useSession() as UserSession;
+  const isEditor = user?.role === "EDITOR";
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const renderPrice = () => {
-    if ("price" in props) {
+  console.log(`[ProductCard] Rendering product card: ${props.name} (${props.id})`);
+
+  const renderPriceSection = () => {
+    if ('price' in props) {
+      return <div className="text-lg font-bold">${props.price}</div>;
+    } else if ('originalPrice' in props && 'salePrice' in props) {
       return (
-        <span className="text-lg font-semibold text-primary">
-          R{props.price}
-        </span>
-      );
-    } else {
-      return (
-        <div className="flex items-center space-x-2">
-          <span className="text-lg font-semibold text-red-600">
-            R{props.salePrice}
-          </span>
-          <span className="text-sm text-muted-foreground line-through">
-            R{props.originalPrice}
-          </span>
+        <div className="flex items-center gap-2">
+          <div className="text-lg text-primary font-bold">${props.salePrice}</div>
+          <div className="text-sm text-muted-foreground line-through">${props.originalPrice}</div>
         </div>
       );
     }
+    return null;
   };
 
   return (
-    <div className="w-full sm:flex-1 p-4 bg-card rounded-lg border border-border hover:shadow-md transition-shadow">
-      <div className="relative flex justify-center items-center h-48 bg-secondary rounded-md mb-4">
-        {image ? (
-          <Image
-            src={image}
-            alt={name}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover rounded-md"
-            priority
-          />
+    <div className="relative bg-card rounded-lg shadow p-4 group">
+      {/* Product Image */}
+      <div className="mb-4 aspect-square bg-secondary/20 rounded overflow-hidden">
+        {props.image ? (
+          <div className="relative w-full h-full">
+            <Image
+              src={props.image} 
+              alt={props.name} 
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              className="object-cover"
+              onError={(e) => {
+                console.error(`[ProductCard] Image error for ${props.name}`);
+                (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+              }}
+            />
+          </div>
         ) : (
-          <Package className="w-16 h-16 text-muted-foreground" />
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            No Image
+          </div>
         )}
       </div>
-      <h3 className="text-card-foreground font-medium mb-2 line-clamp-1">
-        {name}
-      </h3>
-      <div className="flex justify-between items-center mb-2">
-        {renderPrice()}
-        <div className="flex">
-          {[...Array(5)].map((_, i) => (
+      
+      {/* Product Content */}
+      <div>
+        <h3 className="font-medium text-foreground mb-1">{props.name}</h3>
+        
+        {/* Rating stars */}
+        <div className="flex items-center gap-1 mb-2">
+          {[...Array(5)].map((_, idx) => (
             <Star
-              key={i}
+              key={idx}
               className={`w-4 h-4 ${
-                i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                idx < props.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
               }`}
             />
           ))}
         </div>
+        
+        {/* Price section */}
+        {renderPriceSection()}
       </div>
+
+      {/* Edit/Delete buttons for editors */}
+      {isEditor && (
+        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setEditOpen(true)}
+            className="p-1 rounded hover:bg-secondary"
+            aria-label="Edit"
+          >
+            <Pencil className="w-4 h-4 text-primary" />
+          </button>
+          <button
+            onClick={() => setDeleteOpen(true)}
+            className="p-1 rounded hover:bg-destructive/10"
+            aria-label="Delete"
+          >
+            <Trash2 className="w-4 h-4 text-destructive" />
+          </button>
+        </div>
+      )}
+
+      {/* Modals */}
+      <BestSellerEditModal
+        isOpen={editOpen}
+        onClose={() => setEditOpen(false)}
+        bestSellerId={props.id}
+      />
+      <BestSellerDeleteModal
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        bestSellerId={props.id}
+      />
     </div>
   );
 };
-
-export default ProductCard;

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+//app/(public)/_components/(section-3)/_components/(best-seller)/BestSellerEditModal.tsx
+
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,47 +12,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Star } from "lucide-react";
 import useBestSellerStore from "../../_store/(best-store)/best-seller-store";
+import Image from "next/image";
 
-interface UploadModalProps {
+interface EditModalProps {
   isOpen: boolean;
   onClose: () => void;
+  bestSellerId: string | null;
 }
 
-export const BestSellerUploadModal: React.FC<UploadModalProps> = ({
+export const BestSellerEditModal: React.FC<EditModalProps> = ({
   isOpen,
   onClose,
+  bestSellerId,
 }) => {
+  const {
+    selectedBestSeller,
+    fetchBestSellerById,
+    updateBestSeller,
+    isLoading,
+    error,
+    clearError,
+  } = useBestSellerStore();
   const [rating, setRating] = useState(0);
-  const { createBestSeller, isLoading, error, clearError } =
-    useBestSellerStore();
+
+  useEffect(() => {
+    if (isOpen && bestSellerId) fetchBestSellerById(bestSellerId);
+  }, [isOpen, bestSellerId, fetchBestSellerById]);
+
+  useEffect(() => {
+    if (selectedBestSeller) setRating(selectedBestSeller.rating);
+  }, [selectedBestSeller]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
-
-    if (rating === 0) {
-      return; // Could add error handling for rating
-    }
-
+    if (!selectedBestSeller) return;
     const formData = new FormData(e.currentTarget);
     formData.append("rating", rating.toString());
-
-    try {
-      await createBestSeller(formData);
-      onClose();
-      // Reset form state
-      setRating(0);
-      e.currentTarget.reset();
-    } catch (error) {
-      console.error("Error uploading best seller:", error);
-    }
+    await updateBestSeller(selectedBestSeller.id, formData);
+    onClose();
   };
+
+  if (!selectedBestSeller) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Best Seller</DialogTitle>
+          <DialogTitle>Edit Best Seller</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -58,11 +67,10 @@ export const BestSellerUploadModal: React.FC<UploadModalProps> = ({
             <Input
               id="name"
               name="name"
-              placeholder="Enter product name"
+              defaultValue={selectedBestSeller.name}
               required
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="price">Price</Label>
             <Input
@@ -71,22 +79,22 @@ export const BestSellerUploadModal: React.FC<UploadModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              placeholder="0.00"
+              defaultValue={selectedBestSeller.price}
               required
             />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="image">Product Image</Label>
-            <Input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              required
+            <Label>Current Image</Label>
+            <Image
+              src={selectedBestSeller.imageUrl}
+              alt="Current"
+              className="w-32 h-20 object-contain border rounded-md"
             />
           </div>
-
+          <div className="space-y-2">
+            <Label htmlFor="image">New Image (optional)</Label>
+            <Input id="image" name="image" type="file" accept="image/*" />
+          </div>
           <div className="space-y-2">
             <Label>Rating</Label>
             <div className="flex gap-1">
@@ -103,23 +111,13 @@ export const BestSellerUploadModal: React.FC<UploadModalProps> = ({
               ))}
             </div>
           </div>
-
           {error && <p className="text-sm text-destructive">{error}</p>}
-
           <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                clearError();
-                setRating(0);
-                onClose();
-              }}
-            >
+            <Button type="button" variant="outline" onClick={() => { clearError(); onClose(); }}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading || rating === 0}>
-              {isLoading ? "Uploading..." : "Upload"}
+              {isLoading ? "Saving..." : "Update"}
             </Button>
           </div>
         </form>
