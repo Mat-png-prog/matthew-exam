@@ -1,10 +1,9 @@
-//app/(public)/_components/(section-3)/types.ts
-
 export interface BaseProductProps {
   id: string; // Required ID field
   name: string;
   rating: number;
   image?: string;
+  type: "best-seller" | "new-arrival" | "on-sale"; // Added type field to identify the product category
 }
 
 export interface RegularProductProps extends BaseProductProps {
