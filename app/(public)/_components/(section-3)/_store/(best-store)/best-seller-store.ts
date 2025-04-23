@@ -8,6 +8,10 @@ import {
   getBestSellerById,
 } from "../../_actions/(best-seller-actions)/upload-get";
 import {
+  updateBestSeller as updateBestSellerAction,
+  deleteBestSeller as deleteBestSellerAction,
+} from "../../_actions/(best-seller-actions)/update-delete";
+import {
   createSecureStorage,
   isLocalStorageAvailable,
   sanitizeProductData,
@@ -39,6 +43,8 @@ interface BestSellerState {
   fetchBestSellers: () => Promise<void>;
   fetchBestSellerById: (id: string) => Promise<void>;
   createBestSeller: (formData: FormData) => Promise<void>;
+  updateBestSeller: (id: string, formData: FormData) => Promise<void>;
+  deleteBestSeller: (id: string) => Promise<void>;
   setSelectedBestSeller: (bestSeller: BestSeller | null) => void;
   clearError: () => void;
 }
@@ -144,6 +150,70 @@ const useBestSellerStore = create<BestSellerState>()(
         }
       },
 
+      // Update best seller
+      updateBestSeller: async (id: string, formData: FormData) => {
+        set({ isLoading: true, error: null });
+        try {
+          console.log(`Updating best seller with ID: ${id}`);
+          const response = await updateBestSellerAction(id, formData);
+          
+          if (response.success) {
+            // Update the item in the cached list
+            const currentBestSellers = get().bestSellers;
+            const updatedBestSellers = currentBestSellers.map(item => 
+              item.id === id ? response.data : item
+            );
+            
+            set({
+              bestSellers: updatedBestSellers,
+              selectedBestSeller: response.data,
+              lastFetched: Date.now(), // Update last fetched timestamp
+            });
+            console.log(`Successfully updated best seller: ${response.data.name}`);
+          } else {
+            set({ error: response.error || "Failed to update best seller" });
+            console.error(`Error updating best seller: ${response.error}`);
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+          console.error(`Exception updating best seller: ${errorMessage}`);
+          set({ error: errorMessage });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // Delete best seller
+      deleteBestSeller: async (id: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          console.log(`Deleting best seller with ID: ${id}`);
+          const response = await deleteBestSellerAction(id);
+          
+          if (response.success) {
+            // Remove the item from the cached list
+            const currentBestSellers = get().bestSellers;
+            const updatedBestSellers = currentBestSellers.filter(item => item.id !== id);
+            
+            set({
+              bestSellers: updatedBestSellers,
+              selectedBestSeller: null,
+              lastFetched: Date.now(), // Update last fetched timestamp
+            });
+            console.log(`Successfully deleted best seller ID: ${id}`);
+          } else {
+            set({ error: response.error || "Failed to delete best seller" });
+            console.error(`Error deleting best seller: ${response.error}`);
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+          console.error(`Exception deleting best seller: ${errorMessage}`);
+          set({ error: errorMessage });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       // Set selected best seller
       setSelectedBestSeller: (bestSeller: BestSeller | null) => {
         set({ selectedBestSeller: bestSeller });
@@ -155,7 +225,7 @@ const useBestSellerStore = create<BestSellerState>()(
       },
     }),
     {
-      name: "best-seller-storage", // Name of the item in localStorage
+      name: "best-sellers-storage", // Name of the item in localStorage
       storage: isLocalStorageAvailable() ? createSecureStorage() : undefined,
       partialize: (state) => ({
         bestSellers: sanitizeProductData(state.bestSellers),
