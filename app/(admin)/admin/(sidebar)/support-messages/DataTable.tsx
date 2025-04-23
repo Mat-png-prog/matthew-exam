@@ -1,4 +1,5 @@
 //app/(admin)/support-messages/DataTable.tsx
+
  "use client";
 
 import {

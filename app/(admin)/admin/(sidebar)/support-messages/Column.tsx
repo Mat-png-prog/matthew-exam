@@ -1,3 +1,5 @@
+//app/(admin)/admin/(sidebar)/support-messages/Column.tsx
+
 "use client";
 
 import { Badge } from "@/components/ui/badge";

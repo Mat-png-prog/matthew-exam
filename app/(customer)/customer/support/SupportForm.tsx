@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { createSupportMessage } from "@/app/_actions/support";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

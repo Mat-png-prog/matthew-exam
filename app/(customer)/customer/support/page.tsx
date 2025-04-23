@@ -1,3 +1,5 @@
+//app/(customer)/customer/support/page.tsx
+
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
 import { SupportForm } from "./SupportForm";

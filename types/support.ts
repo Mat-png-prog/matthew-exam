@@ -27,12 +27,15 @@ export const supportMessageSchema = z.object({
   priority: z.nativeEnum(SupportMessagePriority).default(SupportMessagePriority.LOW),
 });
 
-// Base schema for the type used in the DataTable
+// UPDATED here: Include updatedAt, resolvedAt, closedAt
 export const supportMessageResponseSchema = supportMessageSchema.extend({
   id: z.string(),
   status: z.nativeEnum(SupportMessageStatus),
   createdAt: z.string(),
   firstResponseAt: z.string().nullable(),
+  updatedAt: z.string(),
+  resolvedAt: z.string().nullable(),
+  closedAt: z.string().nullable(),
   user: z.object({
     firstName: z.string(),
     lastName: z.string(),
@@ -42,20 +45,3 @@ export const supportMessageResponseSchema = supportMessageSchema.extend({
 
 export type SupportMessageSchema = z.infer<typeof supportMessageSchema>;
 export type SupportMessage = z.infer<typeof supportMessageResponseSchema>;
-
-// Type for the store state
-export interface SupportMessagesState {
-  messages: SupportMessage[];
-  isLoading: boolean;
-  error: string | null;
-  lastFetched: number;
-  fetchMessages: () => Promise<void>;
-  updateMessage: (messageId: string, updates: Partial<SupportMessage>) => void;
-  invalidateCache: () => void;
-}
-
-// Type for status update action
-export interface UpdateMessageStatusPayload {
-  messageId: string;
-  status: SupportMessageStatus;
-}

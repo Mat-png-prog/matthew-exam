@@ -15,9 +15,16 @@ import {
   Users,
   FileText,
   BarChart3,
+  LifeBuoy,
 } from "lucide-react";
 
 export const navigation: NavItem[] = [
+  {
+    label: "Support",
+    icon: LifeBuoy,
+    links: [
+      { name: "Issues", href: "/admin/support-messages" },]
+  },
   {
     label: "App Users",
     icon: Users,
@@ -46,7 +53,6 @@ export const navigation: NavItem[] = [
     label: "Reports",
     icon: FileText,
     links: [
-      { name: "Issues", href: "/admin/support-messages" },
       { name: "Sales", href: "/admin/reports/sales" },
       { name: "Inventory", href: "/admin/reports/inventory" },
       { name: "Performance", href: "/admin/reports/performance" },
