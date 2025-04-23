@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start -p 8843",
     "lint": "next lint",
+    "seed": "node scripts/seed.js",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && next build",
     "db:seed": "node script/seed.js"

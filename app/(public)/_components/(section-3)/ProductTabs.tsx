@@ -3,8 +3,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-/* import { useBestSellersContent } from "./_components/(best-seller)/BestSellers";
-import { useOnSaleContent } from "./_components/(on-sale)/OnSale"; */
+import { useBestSellersContent } from "./_components/(best-seller)/BestSellers";
+import { useOnSaleContent } from "./_components/(on-sale)/OnSale";
 import { ProductSlide } from "./_components/ProductSlide";
 import { useNewArrivalsContent } from "./_components/(new-arrivals)/NewArrivals";
 import { ProductCardProps } from "./types";
@@ -21,8 +21,8 @@ const ProductTabs: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const newArrivalsContent = useNewArrivalsContent() as ViewportContent;
-  const bestSellersContent = /* useBestSellersContent() as ViewportContent;
-  const onSaleContent = useOnSaleContent() as ViewportContent; */
+  const bestSellersContent = useBestSellersContent() as ViewportContent;
+  const onSaleContent = useOnSaleContent() as ViewportContent; 
 
   useEffect(() => {
     const checkMobile = () => {
@@ -47,9 +47,9 @@ const ProductTabs: React.FC = () => {
       case 0:
         return newArrivalsContent[viewport] || [[]];
       case 1:
-        return /* bestSellersContent[viewport] || */ [[]];
+        return bestSellersContent[viewport] ||  [[]];
       case 2:
-        return /* onSaleContent[viewport] || */ [[]];
+        return  onSaleContent[viewport] ||  [[]];
       default:
         return [[]];
     }

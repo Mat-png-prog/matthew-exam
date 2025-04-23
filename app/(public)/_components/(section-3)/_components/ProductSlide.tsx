@@ -5,9 +5,11 @@ import ProductCard from "./ProductCard";
 import { UploadModal } from "./(new-arrivals)/UploadModal";
 import { EditModal } from "./(new-arrivals)/EditModal";
 import { BestSellerUploadModal } from "./(best-seller)/BestSellerUploadModal";
+import { BestSellerEditModal } from "./(best-seller)/BestSellerEditModal"; // Import Best Seller Edit Modal
 import { EmptySlotCard } from "./EmptySlotCard";
 import { ProductSlideProps } from "../types";
 import { OnSaleUploadModal } from "./(on-sale)/OnSaleModal";
+import { OnSaleEditModal } from "./(on-sale)/OnSaleEditModal"; // Import On Sale Edit Modal
 import useNewArrivalsStore from "../_store/(new-in-store)/new-arrivals-store";
 import { useSession } from "@/app/SessionProvider";
 import {
@@ -31,7 +33,7 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  
+
   const { user } = useSession();
   const isEditor = user?.role === "EDITOR";
   const { deleteNewArrival } = useNewArrivalsStore();
@@ -58,7 +60,7 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
         await deleteNewArrival(selectedProductId);
       }
       // Implement for other tabs when needed
-      
+
       setIsDeleteDialogOpen(false);
       setSelectedProductId(null);
     }
@@ -94,9 +96,9 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
 
   const renderEditModal = () => {
     if (!selectedProductId) return null;
-    
+
     switch (activeTab) {
-      case 0:
+      case 0: // New Arrivals
         return (
           <EditModal
             isOpen={isEditModalOpen}
@@ -104,7 +106,22 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
             productId={selectedProductId}
           />
         );
-      // Implement for other tabs when needed
+      case 1: // Best Sellers
+        return (
+          <BestSellerEditModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            productId={selectedProductId}
+          />
+        );
+      case 2: // On Sale
+        return (
+          <OnSaleEditModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            productId={selectedProductId}
+          />
+        );
       default:
         return null;
     }
@@ -121,14 +138,14 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
               tabName={tabName}
             />
           ) : (
-            <ProductCard 
-              key={`product-${idx}`} 
-              {...product} 
-              id={product.id} 
+            <ProductCard
+              key={`product-${idx}`}
+              {...product}
+              id={product.id}
               onEdit={isEditor ? handleEditClick : undefined}
               onDelete={isEditor ? handleDeleteClick : undefined}
             />
-          ),
+          )
         )}
       </div>
 
@@ -145,7 +162,10 @@ export const ProductSlide: React.FC<ProductSlideProps> = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
