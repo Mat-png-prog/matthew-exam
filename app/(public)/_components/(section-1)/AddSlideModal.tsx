@@ -25,8 +25,9 @@ import { toast } from "sonner" // Toast notification library
 
 // Import validation schema and type definitions
 import { createSlideSchema, type CreateSlideInput } from "./validations"
-import { useSlideStore } from "./_crud-actions/_store/use-slide-store" // Custom store for slide state
 import Image from "next/image" // Next.js optimized image component
+import useSlideStore from "./_crud-actions/_store/use-slide-store"
+
 
 // Props interface for the AddSlideModal component
 interface AddSlideModalProps {

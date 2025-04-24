@@ -1,4 +1,5 @@
-//validations.ts
+//app/(public)/_components/(section-1)/validations.ts
+
 import { z } from "zod";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "./types";
 

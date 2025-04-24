@@ -1,4 +1,5 @@
-//HeroSlide.tsx
+//app/(public)/_components/(section-1)/HeroSlide.tsx
+
 "use client"
 
 import type React from "react"
@@ -20,8 +21,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { SLIDE_INTERVAL } from "./utils"
 import type { UserRole } from "@prisma/client"
-import { useSlideStore } from "./_crud-actions/_store/use-slide-store"
 import { cn } from "@/lib/utils"
+import useSlideStore from "./_crud-actions/_store/use-slide-store"
 
 /**
  * HeroSlider Component Props
