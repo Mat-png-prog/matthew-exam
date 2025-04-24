@@ -138,6 +138,24 @@ On the banner, there must be:
 - Clicking on either of these icons should open a modal.  
 - Refer to the functionality described in **Question 2 → On the Home page there are 3 tabs** above.
 
+[] On the Home page there is 3 tabs. New arrivals, best sellers and on sale. The create modal for the slider on the tabs already exist and is called emptyslot in other words this is a modal with an empty form. Now on each card in the tabs, each card must have there own pencil icon and there own trash bin.
+
+1. When the pencil is clicked then a modal must open that has a form with the pre populated data of that particular unique id. On this model the editor will be able to update this id's payload(data).
+
+2. When the trash bin is clicked a modal must open that ask the following question: Are you sure you want to delete this slide? This action cannot be undone.
+
+   Below this question must be two buttons. [cancel] [delete].
+
+[] For the my dashboard button in the navbar, the button must navigate to the route based in the users role. for example. if the session user is an editor then it must go to the editors dashboard. If its a customer then the customer must be re directed to the customer dashboard. This dashboard button will be setup for routing only for an editor a customer session.
+
+[] After setting up the my dashboard button routing you will discover that the editor route doesn't exist yet. Setup the editor route just with a navbar that has the userbutton to allow the editor to log out of their dashboard.
+
+[] For the Headwear, Apparel and All Collections route you will have to create a empty slot at the top of the product cards and the filter sidebar that allows an editor to upload a banner for each collection.
+
+On this banner needs to be a pencil and a trash bin. The editor can open a modal when clicking one of the two icons. See this question [On the Home page there is 3 tabs. above] => This must be the same type of functionality.
+
+:zipper_mouth_face:
+
 ---
 
 ### Example Table
@@ -157,30 +175,3 @@ graph TD;
     B-->D;
     C-->D;
 ```
-
-[] On the Home page there is 3 tabs. New arrivals, best sellers and on sale. The create modal for the slider on the tabs already exist and is called emptyslot in other words this is a modal with an empty form. Now on each card in the tabs, each card must have there own pencil icon and there own trash bin.
-
-1. When the pencil is clicked then a modal must open that has a form with the pre populated data of that particular unique id. On this model the editor will be able to update this id's payload(data).
-
-2. When the trash bin is clicked a modal must open that ask the following question: Are you sure you want to delete this slide? This action cannot be undone.
-
-   Below this question must be two buttons. [cancel] [delete].
-
-[] For the my dashboard button in the navbar, the button must navigate to the route based in the users role. for example. if the session user is an editor then it must go to the editors dashboard. If its a customer then the customer must be re directed to the customer dashboard. This dashboard button will be setup for routing only for an editor a customer session.
-
-[] After setting up the my dashboard button routing you will discover that the editor route doesn't exist yet. Setup the editor route just with a navbar that has the userbutton to allow the editor to log out of their dashboard.
-
-[] For the Headwear, Apparel and All Collections route you will have to create a empty slot at the top of the product cards and the filter sidebar that allows an editor to upload a banner for each collection.
-
-On this banner needs to be a pencil and a trash bin. The editor can open a modal when clicking one of the two icons. See this question [On the Home page there is 3 tabs. above] => This must be the same type of functionality.
-
-| Column 1 | Column 2 |
-|----------|----------|
-| Data 1   | Data 2   |
-
-:zipper_mouth_face:
-  graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
