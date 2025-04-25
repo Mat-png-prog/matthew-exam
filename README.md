@@ -144,7 +144,7 @@ On the banner, there must be:
 
 2. When the trash bin is clicked a modal must open that ask the following question: Are you sure you want to delete this slide? This action cannot be undone.
 
-   Below this question must be two buttons. [cancel] [delete].
+Below this question must be two buttons. [cancel] [delete].
 
 [] For the my dashboard button in the navbar, the button must navigate to the route based in the users role. for example. if the session user is an editor then it must go to the editors dashboard. If its a customer then the customer must be re directed to the customer dashboard. This dashboard button will be setup for routing only for an editor a customer session.
 
@@ -154,19 +154,15 @@ On the banner, there must be:
 
 On this banner needs to be a pencil and a trash bin. The editor can open a modal when clicking one of the two icons. See this question [On the Home page there is 3 tabs. above] => This must be the same type of functionality.
 
-:zipper_mouth_face:
+#### :zipper_mouth_face:
 
----
-
-### Example Table
+Example Table
 
 | Column 1 | Column 2 |
 |----------|----------|
 | Data 1   | Data 2   |
 
----
-
-### Graph Representation
+ Graph Representation
 
 ```mermaid
 graph TD;
