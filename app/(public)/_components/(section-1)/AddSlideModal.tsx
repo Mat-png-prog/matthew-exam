@@ -1,45 +1,51 @@
-//AddSlideModal.tsx
-"use client" // Marks this component as a Client Component in Next.js
 
-import type React from "react"
+"use client";
 
-// Import form handling utilities
-import { useForm } from "react-hook-form" // Manages form state and validation
-import { zodResolver } from "@hookform/resolvers/zod" // Connects zod schemas to react-hook-form
+// Import all dependencies, hooks, and UI components
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { createSlideSchema, type CreateSlideInput } from "./validations";
+import useSlideStore from "./_crud-actions/_store/use-slide-store";
+import Image from "next/image";
 
-// Import UI components from shadcn/ui library
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog" // Modal dialog components
-
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form" // Form components with built-in validation display
-
-import { Input } from "@/components/ui/input" // Input field component
-import { Button } from "@/components/ui/button" // Button component
-import { Textarea } from "@/components/ui/textarea" // Multiline text input component
-
-// Dropdown selection components
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// React hooks for state management and side effects
-import { useState, useEffect, useCallback } from "react" // Added useCallback for memoization
-import { toast } from "sonner" // Toast notification library
-
-// Import validation schema and type definitions
-import { createSlideSchema, type CreateSlideInput } from "./validations"
-import Image from "next/image" // Next.js optimized image component
-import useSlideStore from "./_crud-actions/_store/use-slide-store"
-
-
-// Props interface for the AddSlideModal component
+// Props for AddSlideModal component
 interface AddSlideModalProps {
-  isOpen: boolean // Controls whether the modal is visible
-  onClose: () => void // Function to call when the modal is closed
-  onSuccess: () => void // Function to call when a slide is successfully created
-  targetIndex: number // The index where the new slide will be inserted
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  targetIndex: number;
 }
 
-// Background color options for the slides with both value (CSS class) and human-readable label
+// Options for background color selection
 const bgColorOptions = [
-  {value: "bg-tranparent", label:"No Background Colour"},
+  { value: "bg-tranparent", label: "No Background Colour" },
   { value: "bg-blue-500", label: "Blue" },
   { value: "bg-purple-500", label: "Purple" },
   { value: "bg-green-500", label: "Green" },
@@ -48,147 +54,106 @@ const bgColorOptions = [
   { value: "bg-indigo-500", label: "Indigo" },
   { value: "bg-pink-500", label: "Pink" },
   { value: "bg-gray-500", label: "Gray" },
-]
+];
 
-// Main component definition
-const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSuccess, targetIndex }) => {
-  // State for tracking form submission and preview states
-  const [loading, setLoading] = useState(false)
+// AddSlideModal component for adding a new slide
+const AddSlideModal: React.FC<AddSlideModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  targetIndex,
+}) => {
+  // Local state for loading, preview background color, and preview image
+  const [loading, setLoading] = useState(false);
+  const [previewBgColor, setPreviewBgColor] = useState<string>("bg-transparent");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // State for previewing the selected background color
-  const [previewBgColor, setPreviewBgColor] = useState<string>("")
+  const { createSlide, slides } = useSlideStore();
 
-  // State for previewing the slide image
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-
-  // Get the slide store functions for creating and updating slides
-  const { createSlide, slides, updateSlide } = useSlideStore()
-
-  // Initialize the form with react-hook-form and zod validation
+  // Form initialization using react-hook-form and zod for validation
   const form = useForm<CreateSlideInput>({
-    resolver: zodResolver(createSlideSchema), // Use zod schema for validation
+    resolver: zodResolver(createSlideSchema),
     defaultValues: {
       title: "",
       description: "",
-      bgColor: "",
-      order: targetIndex + 1, // Convert from zero-based index to one-based order
-      sliderImage: undefined, // Initialize as undefined since no image is selected yet
+      bgColor: "bg-transparent",
+      order: targetIndex + 1,
+      sliderImage: undefined,
     },
-  })
+  });
 
-  // Memoize the handleOrderPreview function using useCallback to prevent unnecessary recreations
-  // This function provides immediate visual feedback when changing slide order
-  const handleOrderPreview = useCallback(
-    (newOrder: number) => {
-      // Skip if order is invalid
-      if (!newOrder || newOrder < 1 || newOrder > slides.length + 1) {
-        return
-      }
-
-      // Form value is already set, no need for additional preview logic for new slides
-      // This is different from EditSlideModal where we need to preview reordering
-    },
-    [slides.length],
-  )
-
-  // Watch for changes to form fields and update previews
+  // Watch for background color field change to update preview color
   useEffect(() => {
-    // Subscribe to form value changes
     const subscription = form.watch((value, { name }) => {
-      // Update the background color preview when the bgColor field changes
       if (name === "bgColor" && value.bgColor) {
-        setPreviewBgColor(value.bgColor as string)
+        setPreviewBgColor(value.bgColor as string);
       }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
-      // Handle immediate order updates for better UX
-      if (name === "order" && value.order) {
-        handleOrderPreview(value.order)
-      }
-    })
-
-    // Clean up the subscription when the component unmounts
-    return () => subscription.unsubscribe()
-  }, [form, handleOrderPreview]) // Added handleOrderPreview to dependencies
-
-  // Handle file selection for slide image
+  // File change handler for image preview and form value
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      // Update the form with the selected file
-      form.setValue("sliderImage", file, { shouldValidate: true })
-
-      // Create a preview of the selected image
-      const fileReader = new FileReader()
+      form.setValue("sliderImage", file, { shouldValidate: true });
+      const fileReader = new FileReader();
       fileReader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
-      }
-      fileReader.readAsDataURL(file)
+        setImagePreview(e.target?.result as string);
+      };
+      fileReader.readAsDataURL(file);
     }
-  }
+  };
 
-  // Form submission handler
+  // Form submit handler to add slide
   async function onSubmit(data: CreateSlideInput) {
     try {
-      setLoading(true)
-
-      // Reorder existing slides if adding a slide in the middle of the sequence
-      const existingSlides = slides.filter(
-        (slide) => slide.order >= data.order, // Use data.order instead of targetIndex+1 to respect manual order changes
-      )
-
-      if (existingSlides.length > 0) {
-        // Update the order of all existing slides that come after our insertion point
-        for (const slide of existingSlides) {
-          const updateFormData = new FormData()
-          updateFormData.append("id", slide.id)
-          updateFormData.append("order", String(slide.order + 1))
-          await updateSlide(updateFormData)
-        }
+      setLoading(true);
+      // Secure and detailed console log
+      console.log("[AddSlideModal] Submitting new slide data (not exposing sensitive info)", { title: data.title, order: data.order });
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("bgColor", data.bgColor);
+      formData.append("order", String(data.order));
+      if (data.sliderImage) {
+        formData.append("sliderImage", data.sliderImage);
       }
+      const result = await createSlide(formData);
 
-      // Create FormData object to send to the server (supports file uploads)
-      const formData = new FormData()
-      formData.append("sliderImage", data.sliderImage)
-      formData.append("title", data.title)
-      formData.append("description", data.description)
-      formData.append("bgColor", data.bgColor)
-      formData.append("order", String(data.order)) // Use the order from the form data
-
-      // Submit the form data to create the new slide
-      const result = await createSlide(formData)
-
-      // Handle API errors
       if (!result.success) {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
 
-      // Show success message and close modal
-      toast.success("Slide created successfully!")
-      form.reset()
-      setImagePreview(null)
-      setPreviewBgColor("")
-      onSuccess()
-      onClose()
+      toast.success("Slide added successfully!");
+      onSuccess();
+      onClose();
     } catch (error) {
-      // Display error message if creation fails
-      toast.error(error instanceof Error ? error.message : "Failed to create slide")
+      if (typeof window === "undefined") {
+        // Only log on server for security
+        console.error("[AddSlideModal] Add error:", error);
+      }
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add slide"
+      );
     } finally {
-      // Reset loading state regardless of outcome
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  // Component render
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[525px]">
+      {/* DialogContent now has max height and scrolling as in EditSlideModal */}
+      <DialogContent className="sm:max-w-[525px] max-h-[calc(100vh-4rem)] overflow-y-auto focus-visible:outline-none scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600">
         <DialogHeader>
-          <DialogTitle>Add New Slide (Position {form.watch("order")})</DialogTitle>
+          <DialogTitle>
+            Add Slide (Position {form.watch("order")})
+          </DialogTitle>
         </DialogHeader>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Image Upload Field with Preview Area */}
+
+            {/* Image Upload Field with Preview Area and Faint Background Color Preview */}
             <FormField
               control={form.control}
               name="sliderImage"
@@ -196,30 +161,32 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
                 <FormItem>
                   <FormLabel>Slide Image</FormLabel>
                   <div
-                    className={`relative w-full h-40 border-2 border-dashed rounded-md flex items-center justify-center ${
-                      previewBgColor || "bg-transparent"
-                    }`}
+                    // The background color is shown underneath the image preview but with low opacity
+                    className={`relative w-full h-40 border-2 border-dashed rounded-md flex items-center justify-center ${previewBgColor}`}
                   >
                     {imagePreview ? (
                       <div className="relative w-full h-full">
-                        {/* Display image preview with reduced opacity to show background color */}
                         <Image
-                          height={1}
                           width={1}
-                          src={imagePreview || "/placeholder.svg"}
+                          height={1}
+                          src={imagePreview}
                           alt="Preview"
-                          className="w-full h-full object-cover rounded-md opacity-80"
+                          className="w-full h-full object-cover rounded-md opacity-100"
                         />
-                        {/* Overlay to emphasize background color */}
-                        <div className="absolute inset-0 bg-black/30 rounded-md"></div>
+                        <span className="absolute left-2 top-2 bg-black/60 text-xs px-2 py-0.5 rounded text-white z-10">
+                          Preview
+                        </span>
                       </div>
                     ) : (
                       <div className="text-center p-6">
-                        <p className="text-sm text-gray-500">Click to upload or drag and drop</p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF up to 6MB</p>
+                        <p className="text-sm text-white">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-white/80 mt-1">
+                          PNG, JPG, GIF up to 6MB
+                        </p>
                       </div>
                     )}
-                    {/* Hidden file input for image selection */}
                     <Input
                       type="file"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -228,6 +195,11 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
                       {...field}
                     />
                   </div>
+                  <FormDescription>
+                    {imagePreview
+                      ? "New image selected. Submit to add the slide."
+                      : "Upload an image for this slide (optional)."}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -256,7 +228,12 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter slide description" className="resize-none" rows={3} {...field} />
+                    <Textarea
+                      placeholder="Enter slide description"
+                      className="resize-none"
+                      rows={3}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -270,7 +247,10 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Background Color</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a background color" />
@@ -278,23 +258,28 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
                     </FormControl>
                     <SelectContent>
                       {bgColorOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value} className="flex items-center gap-2">
-                          {/* Color preview swatch */}
-                          <span className={`inline-block w-6 h-6 rounded-full ${option.value}`}></span>
+                        <SelectItem
+                          key={option.value}
+                          value={option.value}
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            className={`inline-block w-6 h-6 rounded-full ${option.value}`}
+                          ></span>
                           <span>{option.label}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    This color will show through the slide image with a subtle opacity effect
+                    This color will be used as the slide background.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Position Field - Allow manual override of the slide position */}
+            {/* Position Field - Only allow valid positions */}
             <FormField
               control={form.control}
               name="order"
@@ -302,20 +287,21 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
                 <FormItem>
                   <FormLabel>Position</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={slides.length + 1}
+                    <select
                       {...field}
-                      onChange={(e) => {
-                        // Parse the input value or fallback to default
-                        const newValue = Number.parseInt(e.target.value) || targetIndex + 1
-                        field.onChange(newValue)
-                      }}
-                    />
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-background text-foreground"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    >
+                      {Array.from({ length: slides.length + 1 }, (_, idx) => idx + 1).map((val) => (
+                        <option key={val} value={val}>
+                          {val}
+                        </option>
+                      ))}
+                    </select>
                   </FormControl>
                   <FormDescription>
-                    Position where this slide will appear (1 is first, {slides.length + 1} is last)
+                    Select a valid position between 1 and {slides.length + 1}.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -324,18 +310,23 @@ const AddSlideModal: React.FC<AddSlideModalProps> = ({ isOpen, onClose, onSucces
 
             {/* Form Submission Buttons */}
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={loading}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Slide"}
+                {loading ? "Adding..." : "Add Slide"}
               </Button>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default AddSlideModal
+export default AddSlideModal;

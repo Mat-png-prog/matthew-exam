@@ -5,7 +5,6 @@ import { Check, LogOutIcon, Monitor, Moon, Sun, UserIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useState } from "react";
-
 import UserAvatar from "./UserAvatar";
 import { logout } from "@/app/(auth)/actions";
 import {

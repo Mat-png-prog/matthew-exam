@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "@/app/SessionProvider";
-import UserButton from "../UserButton";
 import Cart from "./(cart)/Cart";
 import MobileMenu from "./MobileMenu";
 import { MenuIcon, CartIcon } from "./NavIcons";
@@ -13,6 +12,7 @@ import AuthModal from "@/app/(auth)/_components/AuthTabs";
 import { useCart } from "../../productId/cart/_store/use-cart-store-hooks";
 import { usePathname } from "next/navigation";
 import TierBadge from "./TierBadge"; // Import the TierBadge component
+import UserButton from "@/components/UserButton";
 
 export default function Navbar() {
   const pathname = usePathname();

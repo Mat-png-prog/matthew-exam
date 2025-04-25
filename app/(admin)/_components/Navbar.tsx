@@ -1,7 +1,8 @@
+
 "use client";
+
 import Link from "next/link";
-import Image from "next/image";
-import UserButton from "./UserButton";
+import UserButton from "@/components/UserButton";
 
 const Navbar = () => {
   return (

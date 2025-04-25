@@ -1,7 +1,6 @@
-//app/(public)/_components/(section-1)/EditSlideModal.tsx
-
 "use client";
 
+// Importing all required dependencies, hooks, and UI components
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -29,13 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { editSlideSchema, type EditSlideFormValues } from "./validations";
 import useSlideStore from "./_crud-actions/_store/use-slide-store";
 import { Slide } from "./types";
 import Image from "next/image";
 
+// Props for the EditSlideModal component
 interface EditSlideModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +43,7 @@ interface EditSlideModalProps {
   slide: Slide;
 }
 
+// Options for background color selection
 const bgColorOptions = [
   { value: "bg-tranparent", label: "No Background Colour" },
   { value: "bg-blue-500", label: "Blue" },
@@ -55,14 +56,15 @@ const bgColorOptions = [
   { value: "bg-gray-500", label: "Gray" },
 ];
 
+// EditSlideModal component for editing an existing slide
 const EditSlideModal: React.FC<EditSlideModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
   slide,
 }) => {
+  // Local state for loading and preview image
   const [loading, setLoading] = useState(false);
-  const [previewBgColor, setPreviewBgColor] = useState<string>(slide.bgColor);
   const [imagePreview, setImagePreview] = useState<string | null>(slide.sliderImageurl);
 
   const { updateSlide, slides } = useSlideStore();
@@ -70,6 +72,7 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
   // Only allow positions 1 ... slides.length (no "empty slot" at slides.length+1)
   const maxOrder = slides.length;
 
+  // Form initialization using react-hook-form and zod for validation
   const form = useForm<EditSlideFormValues>({
     resolver: zodResolver(editSlideSchema),
     defaultValues: {
@@ -82,15 +85,7 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
     },
   });
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "bgColor" && value.bgColor) {
-        setPreviewBgColor(value.bgColor as string);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
+  // Handler for file change, sets preview and form value
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -103,9 +98,11 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
     }
   };
 
+  // Form submit handler to update the slide
   async function onSubmit(data: EditSlideFormValues) {
     try {
       setLoading(true);
+      console.log("[EditSlideModal] Submitting updated slide data (not exposing sensitive info)", { title: data.title, order: data.order });
       const formData = new FormData();
       formData.append("id", slide.id);
       formData.append("title", data.title);
@@ -126,6 +123,7 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
       onClose();
     } catch (error) {
       if (typeof window === "undefined") {
+        // Only log on server for security
         console.error("[EditSlideModal] Update error:", error);
       }
       toast.error(
@@ -138,9 +136,8 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="sm:max-w-[525px] max-h-[calc(100vh-4rem)] overflow-y-auto focus-visible:outline-none scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600"
-      >
+      {/* Dialog with max-width and scroll, consistent with AddSlideModal */}
+      <DialogContent className="sm:max-w-[525px] max-h-[calc(100vh-4rem)] overflow-y-auto focus-visible:outline-none scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600">
         <DialogHeader>
           <DialogTitle>
             Edit Slide (Position {form.watch("order")})
@@ -148,7 +145,6 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
             {/* Image Upload Field with Preview Area */}
             <FormField
               control={form.control}
@@ -156,18 +152,20 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
               render={({ field: { value, onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Slide Image</FormLabel>
-                  <div
-                    className={`relative w-full h-40 border-2 border-dashed rounded-md flex items-center justify-center ${previewBgColor}`}
-                  >
+                  <div className="relative w-full h-40 border-2 border-dashed rounded-md flex items-center justify-center bg-transparent">
                     {imagePreview ? (
                       <div className="relative w-full h-full">
+                        {/* The preview image is fully visible, not faded */}
                         <Image
                           width={1}
                           height={1}
                           src={imagePreview}
                           alt="Preview"
-                          className="w-full h-full object-cover rounded-md opacity-50"
+                          className="w-full h-full object-cover rounded-md opacity-100"
                         />
+                        <span className="absolute left-2 top-2 bg-black/60 text-xs px-2 py-0.5 rounded text-white z-10">
+                          Preview
+                        </span>
                       </div>
                     ) : (
                       <div className="text-center p-6">
@@ -264,7 +262,7 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    This color will show through the slide image for better visibility
+                    This color will be used as the slide background.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

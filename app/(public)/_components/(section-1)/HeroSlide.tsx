@@ -78,7 +78,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
   const [targetIndex, setTargetIndex] = useState<number | null>(null)
 
   // Check if the current user has editor privileges
-  const isEditor = userRole === "EDITOR"
+  const isEditor = userRole === "EDITOR"|| userRole =="SUPERADMIN"
 
   // Helper to check if any modal is currently open
   const isModalOpen = isAddModalOpen || isEditModalOpen || isDeleteModalOpen || isDeleting
@@ -233,7 +233,6 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                         alt={slide.title}
                         fill
                         priority
-                        className="object-cover opacity-80" // Increased opacity from 50% to 70% for better visibility
                         sizes="100vw"
                       />
                     )}
