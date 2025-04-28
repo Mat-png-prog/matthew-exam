@@ -1,6 +1,5 @@
 //app/(public)/(group-products)/headwear/AddHeadwearSlideModal.tsx
 
-
 "use client";
 
 // Import all dependencies, hooks, and UI components
