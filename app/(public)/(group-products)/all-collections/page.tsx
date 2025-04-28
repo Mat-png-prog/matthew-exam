@@ -1,50 +1,42 @@
-"use client";
+//app/(public)/(group-products)/all-collections/page.tsx
 
-import { useProductsByPathname } from "../_components/_store/useProductsByPathname";
-import ProductGrid from "../(unviresal_comp)/UnifiedProductGrid";
-import { useEffect } from "react";
+import { validateRequest } from "@/auth";
+import { getAllCollectionsSlides } from "./_actions/create-read";
+import HeroSliderAllCollections from "./HeroSliderAllCollections";
+import AllCollectionsProducts from "./AllCollectionsProducts";
 
-export default function AllCollectionsPage() {
-  // Use the custom hook to get products filtered by pathname
-  const { products, isLoading, error } = useProductsByPathname();
-
-  // Debug logging
-  useEffect(() => {
-    console.log("AllCollectionsPage rendered:", {
-      productsCount: products?.length || 0,
-      isLoading,
-      error,
-    });
-  }, [products, isLoading, error]);
-
-  // Handle loading state
-  if (isLoading) {
-    return <div className="text-center py-12">Loading products...</div>;
-  }
-
-  // Handle error state
-  if (error) {
-    console.error("Error loading all collections products:", error);
-    return (
-      <div className="text-center py-12 text-red-500">
-        Error loading products: {error}
-      </div>
-    );
-  }
-
-  // Safe check for products array
-  const safeProducts = Array.isArray(products) ? products : [];
+export default async function AllCollectionsPage() {
+  const [slidesResponse, { user }] = await Promise.all([
+    getAllCollectionsSlides(),
+    validateRequest(),
+  ]);
+  const userRole = user?.role ?? "USER";
+  const slides = slidesResponse.success ? slidesResponse.data || [] : [];
 
   return (
-    <div>
+    <>
       <h1 className="text-2xl font-bold mb-6">All Collections</h1>
-      {safeProducts.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          No products found.
-        </div>
-      ) : (
-        <ProductGrid products={safeProducts} enableLogging={true} />
-      )}
-    </div>
+      {/* Hero Section - Positioned absolutely to span full width */}
+      <div className="absolute -left-1 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 z-10">
+        <HeroSliderAllCollections
+          userRole={userRole}
+          initialSlides={slides}
+          autoPlay={true}
+        />
+        {!slidesResponse.success && (
+          <div className="text-center py-4 text-red-500">
+            Error loading banner: {slidesResponse.error}
+          </div>
+        )}
+      </div>
+
+      {/* Spacer to push content below hero slider */}
+      <div className="w-full" style={{ height: "calc(300px + 2rem)" }}></div>
+
+      {/* Main Content */}
+      <div>
+        <AllCollectionsProducts />
+      </div>
+    </>
   );
 }
