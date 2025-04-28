@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-1)/_crud-actions/delete-actions.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";
@@ -11,7 +13,7 @@ export async function deleteSlide(slideId: string): Promise<SlideResponse> {
     // Validate user authentication and authorization
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") {
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") {
       return redirect("/login");
     }
 

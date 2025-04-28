@@ -17,7 +17,7 @@ type ExtendedProductCardProps = ProductCardProps & ExtendedProps;
 
 const ProductCard: React.FC<ExtendedProductCardProps> = (props) => {
   const { user } = useSession();
-  const isEditor = user?.role === "EDITOR";
+  const isEditor = user?.role === "EDITOR" || user?.role === "SUPERADMIN";
   
   // Handle empty slots for editors
   if (props.isEmpty) {
@@ -49,19 +49,22 @@ const ProductCard: React.FC<ExtendedProductCardProps> = (props) => {
     }
   };
 
+  // Ensure we have a valid ID for all product types
+  const productId = props.id || "";
+
   return (
     <div className="w-full sm:flex-1 p-4 bg-card rounded-lg border border-border hover:shadow-md transition-shadow relative">
-      {isEditor && props.id && (
+      {isEditor && productId && (
         <div className="absolute top-2 right-2 flex gap-2 z-10">
           <button
-            onClick={() => props.onEdit && props.id && props.onEdit(props.id)}
+            onClick={() => props.onEdit && productId && props.onEdit(productId)}
             className="p-3 bg-secondary rounded-full hover:bg-primary/10 transition-colors"
             aria-label="Edit product"
           >
             <Pencil className="w-4 h-4 text-primary" />
           </button>
           <button
-            onClick={() => props.onDelete && props.id && props.onDelete(props.id)}
+            onClick={() => props.onDelete && productId && props.onDelete(productId)}
             className="p-3 bg-secondary rounded-full hover:bg-destructive/10 transition-colors"
             aria-label="Delete product"
           >

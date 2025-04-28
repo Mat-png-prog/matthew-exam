@@ -140,7 +140,7 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
       <DialogContent className="sm:max-w-[525px] max-h-[calc(100vh-4rem)] overflow-y-auto focus-visible:outline-none scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600">
         <DialogHeader>
           <DialogTitle>
-            Edit Slide (Position {form.watch("order")})
+            Edit Slide
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -291,7 +291,8 @@ const EditSlideModal: React.FC<EditSlideModalProps> = ({
                     </select>
                   </FormControl>
                   <FormDescription>
-                    Select a valid position between 1 and {maxOrder}. You cannot move to a vacant slot.
+                    Select a valid position between 1 and {maxOrder}. You cannot move to a vacant slot or from higher number to 1.
+                    Please refresh page if you do this.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

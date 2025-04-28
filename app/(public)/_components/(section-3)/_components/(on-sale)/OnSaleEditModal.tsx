@@ -1,5 +1,7 @@
 //app/(public)/_components/(section-3)/_components/(on-sale)/OnSaleEditModal.tsx
 
+
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -26,7 +28,8 @@ export const OnSaleEditModal: React.FC<EditModalProps> = ({
 }) => {
   const [rating, setRating] = useState(0);
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [salePrice, setSalePrice] = useState("");
   const [isImageChanged, setIsImageChanged] = useState(false);
 
   const {
@@ -47,7 +50,8 @@ export const OnSaleEditModal: React.FC<EditModalProps> = ({
   useEffect(() => {
     if (selectedOnSaleItem) {
       setName(selectedOnSaleItem.name);
-      setPrice(selectedOnSaleItem.salePrice.toString());
+      setOriginalPrice(selectedOnSaleItem.originalPrice.toString());
+      setSalePrice(selectedOnSaleItem.salePrice.toString());
       setRating(selectedOnSaleItem.rating);
     }
   }, [selectedOnSaleItem]);
@@ -100,15 +104,30 @@ export const OnSaleEditModal: React.FC<EditModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Price</Label>
+            <Label htmlFor="originalPrice">Original Price</Label>
             <Input
-              id="price"
-              name="price"
+              id="originalPrice"
+              name="originalPrice"
               type="number"
               step="0.01"
               min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              value={originalPrice}
+              onChange={(e) => setOriginalPrice(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="salePrice">Sale Price</Label>
+            <Input
+              id="salePrice"
+              name="salePrice"
+              type="number"
+              step="0.01"
+              min="0"
+              value={salePrice}
+              onChange={(e) => setSalePrice(e.target.value)}
               placeholder="0.00"
               required
             />

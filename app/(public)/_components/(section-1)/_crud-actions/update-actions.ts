@@ -16,7 +16,7 @@ export async function updateSlide(formData: FormData): Promise<SlideResponse> {
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") return redirect("/login");
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") return redirect("/");
     const id = formData.get("id") as string;
     if (!id) throw new Error("Missing slide id");
 

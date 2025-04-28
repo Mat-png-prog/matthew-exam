@@ -1,34 +1,37 @@
 //app/(public)/_components/(section-3)/types.ts
 
+
+export type TabContent = {
+  [key: number]: ProductCardProps[][];
+};
+
+// Base product interface with common properties
 export interface BaseProductProps {
+  id: string;
   name: string;
+  image: string;
   rating: number;
-  image?: string;
-  id?: string; // Add ID to base interface
-  isEmpty?: boolean; // Add isEmpty for empty slots
+  isEmpty?: boolean;
 }
 
+// Interface for regular products (New Arrivals, Best Sellers)
 export interface RegularProductProps extends BaseProductProps {
-  price: string;
-  originalPrice?: never;
-  salePrice?: never;
+  price: number;
 }
 
+// Interface for sale products
 export interface SaleProductProps extends BaseProductProps {
-  originalPrice: string;
-  salePrice: string;
-  price?: never;
+  originalPrice: number;
+  salePrice: number;
 }
 
-export type ProductCardProps = RegularProductProps | SaleProductProps;
+// Union type for all product types
+export type ProductCardProps = RegularProductProps | SaleProductProps | { isEmpty: true };
 
+// Props for the ProductSlide component
 export interface ProductSlideProps {
   products: ProductCardProps[];
   isMobile: boolean;
   activeTab: number;
   tabName: string;
 }
-
-export type TabContent = {
-  [key: number]: ProductCardProps[][];
-};

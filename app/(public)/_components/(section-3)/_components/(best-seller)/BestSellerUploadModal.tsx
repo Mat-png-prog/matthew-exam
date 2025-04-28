@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_components/(best-seller)/BestSellerUploadModal.tsx
+
 import React, { useState } from "react";
 import {
   Dialog,

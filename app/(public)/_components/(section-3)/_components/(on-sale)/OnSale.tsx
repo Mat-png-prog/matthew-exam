@@ -1,9 +1,9 @@
-// _components/(on-sale)/OnSale.tsx
+//app/(public)/_components/(section-3)/_components/(on-sale)/OnSale.tsx
+
 import { useMemo, useEffect } from "react";
 import { ProductCardProps, TabContent } from "../../types";
 import { useSession } from "@/app/SessionProvider";
 import useOnSaleStore from "../../_store/(on-sale)/onsale-store";
-
 
 const SLOTS_PER_PAGE = {
   mobile: 2,
@@ -13,7 +13,7 @@ const SLOTS_PER_PAGE = {
 export const useOnSaleContent = (): TabContent => {
   const { onSaleItems, fetchOnSaleItems, isLoading } = useOnSaleStore();
   const { user } = useSession();
-  const isEditor = user?.role === "EDITOR";
+  const isEditor = user?.role === "EDITOR" || user?.role === "SUPERADMIN";
 
   // Fetch data on mount
   useEffect(() => {
@@ -23,9 +23,10 @@ export const useOnSaleContent = (): TabContent => {
   return useMemo(() => {
     // Convert on-sale items to ProductCardProps format
     const convertedProducts: ProductCardProps[] = onSaleItems.map((item) => ({
+      id: item.id, // Include the id property
       name: item.name,
-      originalPrice: item.originalPrice.toString(),
-      salePrice: item.salePrice.toString(),
+      originalPrice: Number(item.originalPrice), // Keep as number
+      salePrice: Number(item.salePrice), // Keep as number
       rating: item.rating,
       image: item.imageUrl,
     }));

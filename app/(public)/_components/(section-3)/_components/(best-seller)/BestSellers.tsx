@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-3)/_components/(best-seller)/BestSellers.tsx
+
 import { useMemo, useEffect } from "react";
 import { ProductCardProps, TabContent } from "../../types";
 import { useSession } from "@/app/SessionProvider";
@@ -8,11 +10,10 @@ const SLOTS_PER_PAGE = {
   desktop: 4,
 };
 
-// Hook to manage best sellers content
 export const useBestSellersContent = (): TabContent => {
   const { bestSellers, fetchBestSellers, isLoading } = useBestSellerStore();
   const { user } = useSession();
-  const isEditor = user?.role === "EDITOR";
+  const isEditor = user?.role === "EDITOR" || user?.role === "SUPERADMIN";
 
   // Fetch data on mount
   useEffect(() => {
@@ -22,8 +23,9 @@ export const useBestSellersContent = (): TabContent => {
   return useMemo(() => {
     // Convert best sellers to ProductCardProps format
     const convertedProducts: ProductCardProps[] = bestSellers.map((item) => ({
+      id: item.id, // Include the id property
       name: item.name,
-      price: item.price.toString(),
+      price: Number(item.price), // Keep as number
       rating: item.rating,
       image: item.imageUrl,
     }));

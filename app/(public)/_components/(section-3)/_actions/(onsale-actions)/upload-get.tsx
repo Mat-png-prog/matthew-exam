@@ -1,3 +1,4 @@
+//app/(public)/_components/(section-3)/_actions/(onsale-actions)/upload-get.tsx
 "use server";
 
 import { validateRequest } from "@/auth";

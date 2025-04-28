@@ -1,3 +1,5 @@
+//app/(public)/_components/(section-1)/_crud-actions/action.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";
@@ -15,8 +17,8 @@ export async function createSlide(formData: FormData): Promise<SlideResponse> {
     // Validate user authentication and authorization
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") {
-      return redirect("/login");
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN" ) {
+      return redirect("/");
     }
 
     // Get form data

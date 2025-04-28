@@ -153,7 +153,7 @@ const EditHeadwearSlideModal: React.FC<EditHeadwearSlideModalProps> = ({
       <DialogContent className="sm:max-w-[525px] max-h-[calc(100vh-4rem)] overflow-y-auto focus-visible:outline-none scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-600">
         <DialogHeader>
           <DialogTitle>
-            Edit Slide (Position {form.watch("order")})
+            Edit Slide
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -285,7 +285,7 @@ const EditHeadwearSlideModal: React.FC<EditHeadwearSlideModalProps> = ({
             />
 
             {/* Position Field - Only allow valid existing positions */}
-            <FormField
+            {/* <FormField
               control={form.control}
               name="order"
               render={({ field }) => (
@@ -311,7 +311,7 @@ const EditHeadwearSlideModal: React.FC<EditHeadwearSlideModalProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Form Submission Buttons */}
             <div className="flex justify-end space-x-2">
