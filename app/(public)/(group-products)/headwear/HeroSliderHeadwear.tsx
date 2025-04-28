@@ -1,7 +1,5 @@
 //app/(public)/(group-products)/headwear/HeroSliderHeadwear.tsx
 
-
-
 "use client";
 
 import type React from "react";
@@ -10,7 +8,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Plus, Pencil, Trash } from "lucide-react";
 import { toast } from "sonner";
 import type { HeadwearSlide } from "../types";
-import AddHeadwearSlideModal from "./AddHeadewearSlideModal";
+import AddHeadwearSlideModal from "./AddHeadwearSlideModal";
 import EditHeadwearSlideModal from "./EditHeadwearSlideModal";
 import {
   Dialog,

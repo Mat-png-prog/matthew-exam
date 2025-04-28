@@ -1,9 +1,9 @@
 //app/(public)/(group-products)/headwear/page.tsx
 
- import { validateRequest } from "@/auth";
+import { validateRequest } from "@/auth";
 import { getHeadwearSlides } from "./_actions/create-read";
 import HeroSliderHeadwear from "./HeroSliderHeadwear";
-import ProductGrid from "../(unviresal_comp)/UnifiedProductGrid";
+import HeadwearProducts from "./HeadwearProducts";
 
 export default async function HeadwearPage() {
   const [slidesResponse, { user }] = await Promise.all([
@@ -35,7 +35,7 @@ export default async function HeadwearPage() {
 
       {/* Main Content */}
       <div>
-        <ProductGrid enableLogging={true} products={[]} />
+        <HeadwearProducts />
       </div>
     </>
   );

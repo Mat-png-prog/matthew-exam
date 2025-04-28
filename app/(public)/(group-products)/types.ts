@@ -30,3 +30,39 @@ export interface HeadwearSlideResponse {
   data?: HeadwearSlide;
   error?: string;
 }
+
+export interface ApparelSlide {
+  id: string;
+  sliderImageurl: string;
+  title: string;
+  description: string;
+  bgColor: string;
+  order: number;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ApparelSlideResponse {
+  success: boolean;
+  data?: ApparelSlide;
+  error?: string;
+}
+
+export interface AllCollectionsSlide {
+  id: string;
+  sliderImageurl: string;
+  title: string;
+  description: string;
+  bgColor: string;
+  order: number;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AllCollectionsSlideResponse {
+  success: boolean;
+  data?: AllCollectionsSlide;
+  error?: string;
+}

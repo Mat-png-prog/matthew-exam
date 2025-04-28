@@ -18,7 +18,7 @@ export async function createHeadwearSlide(formData: FormData): Promise<HeadwearS
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") return redirect("/login");
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") return redirect("/");
 
     const file = formData.get("sliderImage") as File;
     const title = formData.get("title") as string;
