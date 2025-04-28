@@ -1,0 +1,1 @@
+//app/(public)/(group-products)/all-collections/_actions/create-read.ts

@@ -1,0 +1,1 @@
+//app/(public)/(group-products)/all-collections/AddAllCollectSlideModal.tsx

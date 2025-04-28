@@ -6,11 +6,11 @@ import EmailSubscribe from "./EmailSubscribe";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="relative">
+    <footer className="relative ">
       {/* Gradient top border */}
-      <div className="h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-700" />
+      <div className="h-1 bg-gradient-to-r w-screen from-red-500 via-red-600 to-red-700" />
 
-      <div className="bg-gradient-to-b from-gray-900 to-black">
+      <div className="bg-gradient-to-b from-gray-900 to-black w-screen">
         <div className="mx-auto max-w-7xl">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 px-6 py-16">

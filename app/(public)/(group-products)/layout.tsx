@@ -25,7 +25,7 @@ export default function ProductsLayout({
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-28">
       <div className="flex gap-x-8">
-        <aside className="hidden lg:block w-64 flex-shrink-0">
+        <aside className="hidden -ml-[9vw] lg:block w-64 mt-[60vh] flex-shrink-0">
           <div className="sticky top-28">
             <FilterSidebar />
           </div>

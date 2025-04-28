@@ -56,3 +56,51 @@ model OnSale {
 
     @@map("on_sale")
 }
+
+model HeadwearBanner {
+    id             String @id @default(uuid())
+    sliderImageurl String
+    title          String
+    description    String
+    bgColor        String
+    order          Int
+    userId         String
+    user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("headwear_banners")
+}
+
+model ApparelBanner {
+    id             String @id @default(uuid())
+    sliderImageurl String
+    title          String
+    description    String
+    bgColor        String
+    order          Int
+    userId         String
+    user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("apparel_banners")
+}
+
+model AllCollectionsBanner {
+    id             String @id @default(uuid())
+    sliderImageurl String
+    title          String
+    description    String
+    bgColor        String
+    order          Int
+    userId         String
+    user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("all_collections_banners")
+}
