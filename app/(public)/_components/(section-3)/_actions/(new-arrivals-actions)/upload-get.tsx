@@ -34,7 +34,7 @@ export async function createNewArrival(
     // Validate user authentication and authorization
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") {
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") {
       return redirect("/");
     }
 

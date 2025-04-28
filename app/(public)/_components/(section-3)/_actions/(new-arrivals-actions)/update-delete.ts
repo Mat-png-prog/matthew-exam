@@ -42,8 +42,8 @@ export async function deleteNewArrival(
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") {
-      return redirect("/login");
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") {
+      return redirect("/");
     }
 
     // First, get the newArrival to access its imageUrl
@@ -96,8 +96,8 @@ export async function updateNewArrival(
   try {
     const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized access");
-    if (user.role !== "EDITOR") {
-      return redirect("/login");
+    if (user.role !== "EDITOR" && user.role !== "SUPERADMIN") {
+      return redirect("/");
     }
 
     // Get form data
