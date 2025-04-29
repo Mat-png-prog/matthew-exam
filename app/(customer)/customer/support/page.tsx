@@ -11,7 +11,7 @@ async function getUser() {
   
   return {
     displayName: `${user.firstName} ${user.lastName}`,
-    maskedEmail: user.email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
+    maskedEmail: user.email/* .replace(/(.{2})(.*)(@.*)/, "$1***$3") */,
     sessionId: user.id,
   };
 }
