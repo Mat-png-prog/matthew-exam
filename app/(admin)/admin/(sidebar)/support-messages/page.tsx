@@ -41,7 +41,7 @@ function convertStatus(status: string): SupportMessageStatus {
 export default async function SupportMessagesPage() {
   // Server-side auth check
   const { user } = await validateRequest();
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "ADMIN" && user.role !== "SUPERADMIN") {
     console.warn(`[ADMIN PAGE] Unauthorized admin page access at ${new Date().toISOString()}`);
     redirect('/login');
   }

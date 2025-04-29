@@ -77,7 +77,7 @@ export default function Navbar() {
     PROCUSTOMER: "/pro",
     EDITOR: "/editor",
     ADMIN: "/admin",
-    SUPERADMIN: "/super-admin",
+    SUPERADMIN: "/super-admin/routing-hub",
   };
 
   // Determine dashboard URL based on user role

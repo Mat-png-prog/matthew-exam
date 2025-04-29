@@ -1,4 +1,5 @@
 //app/_actions/support.ts
+
 "use server";
 
 import { validateRequest } from "@/auth";
@@ -188,7 +189,7 @@ export async function updateMessageStatus(messageId: string, status: SupportMess
  */
 export async function getSupportMessages() {
   const { user } = await validateRequest();
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "ADMIN" && user.role !== "SUPERADMIN") {
     console.warn(`[SUPPORT] Unauthorized fetch attempt at ${new Date().toISOString()}`);
     throw new Error("Unauthorized");
   }
@@ -244,7 +245,7 @@ export async function getSupportMessages() {
  */
 export async function refreshAdminSupportMessages() {
   const { user } = await validateRequest();
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "ADMIN" && user.role !=="SUPERADMIN") {
     console.warn(`[SUPPORT] Unauthorized refresh attempt at ${new Date().toISOString()}`);
     throw new Error("Unauthorized");
   }
