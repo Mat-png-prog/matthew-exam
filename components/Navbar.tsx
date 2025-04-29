@@ -26,7 +26,7 @@ const dashboardRouteByRole: Record<string, string> = {
   CUSTOMER: "/customer",
   PROCUSTOMER: "/pro",
   ADMIN: "/admin",
-  SUPERADMIN: "/super-admin",
+  SUPERADMIN: "/super-admin/routing-hub",
 };
 
 export default function Navbar() {

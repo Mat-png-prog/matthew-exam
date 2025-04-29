@@ -25,8 +25,10 @@ export default async function AdminLayout({
 
   return (
     <SessionProvider value={session}>
-      <div className="flex h-screen flex-col">
-        <Navbar  />
+      <div className="flex  mb-[10vh] flex-col">
+        <div className="mb-[10vh]">
+           <Navbar  />
+       </div>
         <div className="flex flex-1 overflow-hidden">
           <Sidebar />
           <main className="flex-1 overflow-y-auto p-8">{children}</main>
