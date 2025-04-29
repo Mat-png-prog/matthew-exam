@@ -147,7 +147,7 @@ export async function createSupportMessage(formData: FormData) {
 export async function updateMessageStatus(messageId: string, status: SupportMessageStatus) {
   const { user } = await validateRequest();
   if (!user || (user.role !== "ADMIN" &&
-    user.role!=="SUPERADMIN")
+    user.role !=="SUPERADMIN")
   ) {
     console.warn(`[SUPPORT] Unauthorized status update attempt at ${new Date().toISOString()}`);
     throw new Error("Unauthorized");
