@@ -1,7 +1,7 @@
 import React from "react";
 
 const ProCustomerPage = () => {
-  return <div>Admin</div>;
+  return <div>Procustomer</div>;
 };
 
 export default ProCustomerPage;

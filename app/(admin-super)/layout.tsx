@@ -1,9 +1,12 @@
+//app/(admin-super)/layout.tsx
+
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { UserRole } from "@prisma/client";
 import SessionProvider from "./SessionProvider";
-import Navbar from "./_components/Navbar";
+import Navbar from "@/components/Navbar";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -12,24 +15,30 @@ export default async function SuperAdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await validateRequest();
+  const { user, session } = await validateRequest();
 
-  if (!session.user || session.user.role !== UserRole.SUPERADMIN) {
-    redirect("/super-admin/routing-hub");
+  // Check if user exists and has SUPERADMIN role
+  if (!user || user.role !== UserRole.SUPERADMIN) {
+    redirect("/");
+  }
+
+  // If we're not already on the routing hub, redirect there
+  if (user && user.role === UserRole.SUPERADMIN) {
+    // Only redirect if we're not already on the routing-hub page
+    // This check prevents an infinite redirect loop
+    const url = new URL(headers().get("x-url") || "/");
+    if (!url.pathname.includes("/super-admin/routing-hub")) {
+      redirect("/super-admin/routing-hub");
+    }
   }
 
   return (
-    <SessionProvider value={session}>
-      <Toaster />
-      <div className="flex min-h-screen flex-col">
-        <Navbar />
-        {/* Add the Navbar here */}
-        <div className="bg-slate-400"></div>
-        <div className="flex w-full grow">
-          <main className="flex-grow">{children}</main>
-        </div>
-        FOOTER
-      </div>
+    <SessionProvider value={{ user, session }}>
+      <Navbar />
+      <main>
+        {children}
+      </main>
+      <Toaster position="top-center" />
     </SessionProvider>
   );
 }

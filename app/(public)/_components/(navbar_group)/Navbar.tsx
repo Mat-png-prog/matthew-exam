@@ -1,3 +1,6 @@
+//app/(public)/_components/(navbar_group)/Navbar.tsx
+
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -11,7 +14,7 @@ import { getRoutes } from "./routes";
 import AuthModal from "@/app/(auth)/_components/AuthTabs";
 import { useCart } from "../../productId/cart/_store/use-cart-store-hooks";
 import { usePathname } from "next/navigation";
-import TierBadge from "./TierBadge"; // Import the TierBadge component
+import TierBadge from "./TierBadge";
 import UserButton from "@/components/UserButton";
 
 export default function Navbar() {
@@ -68,17 +71,31 @@ export default function Navbar() {
   // Get routes based on user authentication status
   const routes = getRoutes(!!user);
 
+  // Secure role-to-dashboard mapping
+  const dashboardRoutes: Record<string, string> = {
+    CUSTOMER: "/customer",
+    PROCUSTOMER: "/pro",
+    EDITOR: "/editor",
+    ADMIN: "/admin",
+    SUPERADMIN: "/super-admin",
+  };
+
+  // Determine dashboard URL based on user role
+  const dashboardUrl =
+    user && user.role && dashboardRoutes[user.role.toUpperCase()]
+      ? dashboardRoutes[user.role.toUpperCase()]
+      : null;
+
   // This function handles dashboard navigation with a hard refresh
   const handleDashboardClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!dashboardUrl) return;
 
     // Check if we're already on the dashboard page
-    if (pathname === "/customer") {
-      // If already on dashboard, perform a hard window reload
+    if (pathname === dashboardUrl) {
       window.location.reload();
     } else {
-      // If coming from a different page, navigate to dashboard with hard navigation
-      window.location.href = "/customer";
+      window.location.href = dashboardUrl;
     }
   };
 
@@ -104,10 +121,10 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
           {routes.map((route) =>
-            route.name === "My Dashboard" ? (
+            route.name === "My Dashboard" && dashboardUrl ? (
               <a
                 key={route.path}
-                href="/customer"
+                href={dashboardUrl}
                 onClick={handleDashboardClick}
                 className="px-4 py-2 rounded-md text-gray-300 transition-all duration-300 
                   hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-700 
@@ -211,7 +228,7 @@ export default function Navbar() {
             onClose={() => setMobileMenuOpen(false)}
             menuRef={mobileMenuRef}
             routes={routes}
-            dashboardUrl="/customer"
+            dashboardUrl={dashboardUrl || "/customer"}
           />
         </div>
       </nav>

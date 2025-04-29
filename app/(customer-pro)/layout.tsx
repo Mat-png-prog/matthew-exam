@@ -1,9 +1,9 @@
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { UserRole } from "@prisma/client";
 import SessionProvider from "./SessionProvider";
-import Navbar from "./_components/Navbar";
+import Navbar from "@/components/Navbar";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export default async function CustomerLayout({
   const session = await validateRequest();
 
   if (!session.user || session.user.role !== UserRole.PROCUSTOMER) {
-    redirect("/login");
+    redirect("/");
   }
 
   return (

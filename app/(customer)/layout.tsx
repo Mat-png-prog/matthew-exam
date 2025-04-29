@@ -3,13 +3,13 @@
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
 import SessionProvider from "./SessionProvider";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { Tier, UserRole } from "@prisma/client";
-import Navbar from "./_components/Navbar";
+import Navbar from "@/components/Navbar";
 import CustomerSidebar from "./_components/CustomerSidebar";
 import { getCustomerOrderCount } from "./_components/(sidebar)/_profile-actions/count-orders";
 import { getCustomerWishlistCount } from "./_components/(sidebar)/_profile-actions/count-wishlist";
-import { CustomerTier, User } from "./_components/(sidebar)/types";
+import { CustomerTier } from "./_components/(sidebar)/types";
 
 export const dynamic = "force-dynamic";
 
