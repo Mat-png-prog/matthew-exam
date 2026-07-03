@@ -72,7 +72,7 @@
     "next-navigation": "^1.0.6",
     "next-themes": "^0.3.0",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^6.9.16",
+    "nodemailer": "^9.0.1",
     "oslo": "^1.2.1",
     "radio-group": "^0.0.2",
     "react": "^18.3.1",
