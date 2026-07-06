@@ -1,21 +1,98 @@
+# pnpm-workspace.yaml
+#
+# ============================================================================
+# KNOWN VULNERABILITIES FOR THIS EXACT PINNED SET (by severity)
+# ============================================================================
+#
+# -- HIGH --
+# next@14.2.35 — unpatched, no fix planned for the 13.x/14.x line
+#   GHSA-267c-6grr-h53f  Middleware/Proxy auth bypass via App Router segment-prefetch
+#   GHSA-26hh-7cqf-hhc6  Same, incomplete-fix follow-up
+#   GHSA-36qx-fr4f-26g5  Pages Router i18n default-locale bypasses Middleware/Proxy auth
+#   GHSA-492v-c6pp-mqqv  Middleware/Proxy bypass via dynamic route param injection
+#   GHSA-8h8q-6873-q5fj  DoS in Server Components (CVE-2026-23870)
+#   GHSA-c4j6-fc7j-m34r  SSRF in apps using WebSocket upgrades
+#   (GHSA-mg66-mrh9-m8jx, Cache Components DoS, does NOT apply — that feature doesn't exist in 14.x)
+#
+# -- MODERATE --
+# next@14.2.35
+#   GHSA-ffhc-5mcf-pf4q  XSS in App Router apps using CSP nonces
+#   GHSA-gx5p-jg67-6x7h  XSS in beforeInteractive scripts with untrusted input
+#   (unnamed)            Cache poisoning in RSC responses
+#
+# -- LOW --
+# next@14.2.35
+#   GHSA-vfv6-92ff-j949  Cache poisoning via collisions in RSC cache-busting
+#
+# -- NONE KNOWN (as of this writing) --
+#   react@18.3.1 / react-dom@18.3.1  — the React2Shell RCE (CVE-2025-55182) and
+#     its DoS follow-ups only affect React 19.x; 18.3.1 is unaffected.
+#   typescript@6.0.3, prisma@7.7.0 / @prisma/client / @prisma/adapter-pg,
+#     pg@8.22.0, tailwindcss@4.3.2 / @tailwindcss/postcss@4.3.2, postcss@8.5.15
+#   eslint@8.57.0 — no open CVE, but the 8.x line is EOL (Nov 2024): no future fixes.
+#
+# -- SUPPLY-CHAIN / TYPOSQUAT WATCH (not vulnerabilities in the packages above,
+#    but active threats targeting this exact stack — don't hand-type these) --
+#   @tailwind-core/postcss        malicious typosquat of @tailwindcss/postcss (MAL-2026-4450)
+#   postcss-minify-selector-parser, postcss-minify-selector, aes-decode-runner-pro
+#                                 fake PostCSS tooling dropping a Windows RAT (found June 2026)
+#
+# Bottom line: this is the most current *available* set for Next.js 14.
+# Full remediation of the HIGH items requires next@16.2.6 or next@15.5.18 —
+# no patch exists for 14.x.
+# ============================================================================
+#
+# Monorepo root — adjust `packages` globs to match your actual repo layout.
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# --- Engine enforcement ---
+# pnpm 11 requires Node.js >=22. Prisma 7 requires >=18.18 / >=20.9 / >=22.11.
+nodeVersion: "22.11.0"
+engineStrict: true
+
+# --- Supply-chain hardening (pnpm 11 security features) ---
+minimumReleaseAge: 1440        # refuse to install a version until it's >=24h old
+trustPolicy: no-downgrade      # refuse a package whose trust evidence regressed
+blockExoticSubdeps: true       # only direct deps may resolve from git/tarball URLs
+
+# Only these packages are allowed to run their install/postinstall scripts;
+# every other dependency's scripts stay blocked by default.
 allowBuilds:
-  '@prisma/client': false
-  '@prisma/engines': false
-  argon2: false
-  bcrypt: false
-  core-js: false
-  prisma: false
-  sharp: false
-  unrs-resolver: false
-overrides:
-  '@babel/runtime@<7.26.10': '>=7.26.10'
-  effect@<3.20.0: '>=3.20.0'
-  form-data@<2.5.4: '>=2.5.4'
-  form-data@<2.5.6: '>=2.5.6'
-  glob@>=10.2.0 <10.5.0: '>=10.5.0'
-  postcss@<8.5.10: '>=8.5.10'
-  qs@<6.14.1: '>=6.14.1'
-  tmp@<0.2.6: '>=0.2.6'
-  tmp@<=0.2.3: '>=0.2.4'
-  tough-cookie@<4.1.3: '>=4.1.3'
-  uuid@<11.1.1: '>=11.1.1'
+  prisma: true
+  "@prisma/client": true
+  "@prisma/adapter-pg": true
+
+catalog:
+  # --- Next.js 14.x ---
+  # 14.2.35 is the last patched 14.x release (Jan 26, 2026 security update).
+  # NOTE: Next.js 14 reached end-of-life Oct 26, 2025. Vercel's May 2026
+  # security release (13 advisories, incl. auth bypass, SSRF, cache
+  # poisoning, XSS) has NO fix for the 13.x/14.x line — patches are not
+  # planned. For a fully patched posture, use next@16.2.6 or next@15.5.18.
+  next: "14.2.35"
+  eslint-config-next: "14.2.35"
+  react: "18.3.1"
+  react-dom: "18.3.1"
+
+  # --- Language / typing ---
+  typescript: "6.0.3"
+  "@types/node": "^22.10.0"
+  "@types/react": "^18.3.28"
+  "@types/react-dom": "^18.3.5"
+  eslint: "^8.57.0"          # final ESLint 8.x release; required peer of eslint-config-next@14.x
+
+  # --- PostgreSQL via Prisma ---
+  prisma: "7.7.0"
+  "@prisma/client": "7.7.0"
+  "@prisma/adapter-pg": "7.7.0"
+  pg: "8.22.0"
+  "@types/pg": "8.20.0"
+
+  # --- Styling ---
+  # Tailwind v4 handles vendor-prefixing internally (Lightning CSS), so
+  # autoprefixer/postcss-import are no longer needed — fewer deps too.
+  tailwindcss: "4.3.2"
+  "@tailwindcss/postcss": "4.3.2"
+  postcss: "8.5.15"          # >=8.5.10 required — fixes CVE-2026-41305 (XSS)
